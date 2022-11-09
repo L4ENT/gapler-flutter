@@ -46,8 +46,10 @@ class MainMenu extends StatelessWidget {
       children: [
         SizedBox(height: MediaQuery.of(context).padding.top + _headPadding),
         Container(
-          decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(width: 1, color: Colors.grey))),
+          decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(
+                      width: 1, color: Theme.of(context).colorScheme.outline))),
           padding: const EdgeInsets.only(bottom: _headPadding),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

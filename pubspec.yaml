@@ -93,3 +93,13 @@ flutter:
     - family: DomoIcons
       fonts:
         - asset: fonts/DomoIcons.ttf
+    - family: Nunito
+      fonts:
+        - asset: fonts/Nunito-Regular.ttf
+          weight: 400
+        - asset: fonts/Nunito-Semibold.ttf
+          weight: 600
+        - asset: fonts/Nunito-Semibold.ttf
+          weight: 700
+        - asset: fonts/Nunito-Italic.ttf
+          style: italic

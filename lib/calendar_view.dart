@@ -11,8 +11,10 @@ class _BottomBarItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
-      decoration: const ShapeDecoration(
-        shape: CircleBorder(side: BorderSide(width: 1, color: Colors.grey)),
+      decoration: ShapeDecoration(
+        shape: CircleBorder(
+            side: BorderSide(
+                width: 1, color: Theme.of(context).colorScheme.outline)),
         color: Colors.white,
       ),
       child: Icon(icon, size: 18, color: Colors.grey),
@@ -26,7 +28,11 @@ class _BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: BoxDecoration(color: Theme.of(context).backgroundColor),
+        decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            border: Border(
+                top: BorderSide(
+                    width: 1, color: Theme.of(context).colorScheme.outline))),
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -67,7 +73,7 @@ class _ItemLabel extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
       margin: const EdgeInsets.only(right: 4),
       decoration: BoxDecoration(
-          color: Colors.grey, borderRadius: BorderRadius.circular(20)),
+          color: Colors.grey.shade300, borderRadius: BorderRadius.circular(20)),
       child: Text(title, style: const TextStyle(fontSize: 12)),
     );
   }
@@ -109,14 +115,14 @@ class _Item extends StatelessWidget {
         bottomParts.add(Row(
           children: [
             Icon(DomoIcons.attachment,
-                size: 10, color: Theme.of(context).colorScheme.primary),
+                size: 12, color: Theme.of(context).colorScheme.primary),
             Text(files.toString())
           ],
         ));
       }
       if (important) {
         bottomParts.add(Icon(DomoIcons.star,
-            size: 10, color: Theme.of(context).colorScheme.primary));
+            size: 12, color: Theme.of(context).colorScheme.primary));
       }
       itemParts.add(Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,9 +135,9 @@ class _Item extends StatelessWidget {
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(10),
           color: Colors.white,
-          border: Border.all(width: 1, color: Colors.grey)),
+          border: Border.all(width: 1, color: Theme.of(context).colorScheme.outline)),
       child: Column(
         children: itemParts,
       ),
@@ -389,7 +395,7 @@ class _CalendarViewState extends State<CalendarView> {
                       Container(
                         padding: const EdgeInsets.only(left: 16),
                         margin: const EdgeInsets.symmetric(vertical: 16),
-                        height: 230,
+                        height: 250,
                         child: ListView(
                             scrollDirection: Axis.horizontal,
                             children: itemsToBatches(group['items'])

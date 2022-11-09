@@ -11,6 +11,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    ThemeData currentThemeData = Theme.of(context);
     return MaterialApp(
       title: 'Domo',
       theme: ThemeData(
@@ -23,7 +24,27 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        fontFamily: 'Nunito',
+        colorScheme: currentThemeData.colorScheme.copyWith(
+          brightness: Brightness.light,
+          primary: const Color.fromRGBO(203, 27, 115, 1),
+          onPrimary: Colors.white,
+          surface: const Color.fromRGBO(249, 249, 249, 1),
+          outline: Color.fromRGBO(237, 237, 237, 1)
+        ),
+        appBarTheme: currentThemeData.appBarTheme.copyWith(
+            color: const Color.fromRGBO(249, 249, 249, 1),
+            foregroundColor: const Color.fromRGBO(53, 53, 53, 1),
+            centerTitle: true,
+            titleTextStyle: const TextStyle(
+                color: Color.fromRGBO(53, 53, 53, 1), fontSize: 14),
+            elevation: 0,
+            shape: const Border(
+                bottom: BorderSide(
+                    width: 1, color: Color.fromRGBO(234, 234, 234, 1)))),
+        scaffoldBackgroundColor: const Color.fromRGBO(245, 245, 245, 1),
+        primaryColor: const Color.fromRGBO(203, 27, 115, 1),
+        // primarySwatch: Colors.grey,
       ),
       initialRoute: '/',
       routes: {
