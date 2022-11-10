@@ -67,7 +67,7 @@ class MainMenu extends StatelessWidget {
               icon: DomoIcons.calendar,
               title: const Text('All'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pushNamed(context, '/edit');
               },
             ),
             MenuItem(

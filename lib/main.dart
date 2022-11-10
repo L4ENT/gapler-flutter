@@ -1,3 +1,4 @@
+import 'package:domo/edit_view.dart';
 import 'package:flutter/material.dart';
 import 'package:domo/sign_up_page.dart';
 import 'package:domo/calendar_view.dart';
@@ -64,6 +65,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const CalendarView(title: 'All'),
         '/sign-in': (context) => const SignInPage(),
         '/sign-up': (context) => const SignUpPage(),
+        '/edit': (context) => const EditView(),
       },
     );
   }

@@ -7,6 +7,16 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _rePasswordController = TextEditingController();
 
   @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _rePasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     ThemeData t = Theme.of(context);
     return Center(

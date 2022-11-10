@@ -48,4 +48,10 @@ class DomoIcons {
   static const IconData arrow = IconData(0xe818, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData accept = IconData(0xe819, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData attachment = IconData(0xe81a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData h2 = IconData(0xe81b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData h3 = IconData(0xe81c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData italic = IconData(0xe81d, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData underline = IconData(0xe81e, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData bold = IconData(0xe81f, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData h1 = IconData(0xe820, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }
