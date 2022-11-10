@@ -88,14 +88,14 @@ class MainMenu extends StatelessWidget {
               icon: DomoIcons.tag,
               title: const Text('Home'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pushNamed(context, '/sign-up');
               },
             ),
             MenuItem(
               icon: DomoIcons.tag,
               title: const Text('Business'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pushNamed(context, '/sign-in');
               },
             ),
           ],

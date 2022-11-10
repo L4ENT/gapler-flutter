@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'calendar_view.dart';
+import 'package:domo/sign_up_page.dart';
+import 'package:domo/calendar_view.dart';
+import 'package:domo/sign_in_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,7 +32,17 @@ class MyApp extends StatelessWidget {
           primary: const Color.fromRGBO(203, 27, 115, 1),
           onPrimary: Colors.white,
           surface: const Color.fromRGBO(249, 249, 249, 1),
-          outline: Color.fromRGBO(237, 237, 237, 1)
+          outline: const Color.fromRGBO(237, 237, 237, 1)
+        ),
+        textTheme: currentThemeData.textTheme.copyWith(
+          headline2: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700)
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          )
         ),
         appBarTheme: currentThemeData.appBarTheme.copyWith(
             color: const Color.fromRGBO(249, 249, 249, 1),
@@ -50,6 +62,8 @@ class MyApp extends StatelessWidget {
       routes: {
         // When navigating to the "/" route, build the FirstScreen widget.
         '/': (context) => const CalendarView(title: 'All'),
+        '/sign-in': (context) => const SignInPage(),
+        '/sign-up': (context) => const SignUpPage(),
       },
     );
   }

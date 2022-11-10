@@ -99,7 +99,9 @@ flutter:
           weight: 400
         - asset: fonts/Nunito-Semibold.ttf
           weight: 600
-        - asset: fonts/Nunito-Semibold.ttf
+        - asset: fonts/Nunito-Bold.ttf
           weight: 700
         - asset: fonts/Nunito-Italic.ttf
           style: italic
+  assets:
+    - images/
