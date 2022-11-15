@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'domo_icons.dart';
+import 'package:domo/components/domo_icons.dart';
 
 const double _headPadding = 20;
 

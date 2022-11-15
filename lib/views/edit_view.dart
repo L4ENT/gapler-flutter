@@ -1,4 +1,4 @@
-import 'package:domo/domo_icons.dart';
+import 'package:domo/components/domo_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 

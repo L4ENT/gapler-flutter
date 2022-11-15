@@ -1,11 +1,13 @@
-import 'package:domo/edit_view.dart';
 import 'package:flutter/material.dart';
-import 'package:domo/sign_up_page.dart';
-import 'package:domo/calendar_view.dart';
-import 'package:domo/sign_in_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:domo/views/edit_view.dart';
+import 'package:domo/views/sign_up_view.dart';
+import 'package:domo/views/calendar_view.dart';
+import 'package:domo/views/sign_in_view.dart';
+
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -62,7 +64,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         // When navigating to the "/" route, build the FirstScreen widget.
-        '/': (context) => const CalendarView(title: 'All'),
+        '/': (context) => const CalendarView(title: 'All', groupKeyPrefix: 'days',),
         '/sign-in': (context) => const SignInPage(),
         '/sign-up': (context) => const SignUpPage(),
         '/edit': (context) => const EditView(),
