@@ -1,5 +1,6 @@
 import 'package:domo/models/note.dart';
 import 'package:domo/models/notes_group.dart';
+import 'package:domo/providers/calendar_view_manager_provider.dart';
 import 'package:domo/providers/calendar_view_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:domo/components/domo_icons.dart';
@@ -208,6 +209,7 @@ class CalendarView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.read(cvManagerProvider);
     return Scaffold(
         appBar: AppBar(
           title: Text(title),

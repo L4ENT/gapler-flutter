@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:domo/models/tag.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:domo/models/note.dart';
@@ -18,14 +19,9 @@ class FakeTagFactory {
   ];
 
   TagModel fake() {
-    final today = DateTime.now();
-    final createdAt = today.add(Duration(days: Random().nextInt(3)));
-    final updatedAt = createdAt.add(Duration(days: Random().nextInt(3)));
     return TagModel(
       title: labelNames[Random().nextInt(labelNames.length)],
-      uid: uuid.v4(),
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      uid: uuid.v4()
     );
   }
 }
@@ -49,19 +45,44 @@ class FakeCalendarViewFactory {
     return newTags;
   }
 
-  NoteModel fakeItem() {
+  NoteModel fakeItem({DateTime? createdAt, DateTime? updatedAt, List<TagModel>? tags}) {
     final today = DateTime.now();
-    final createdAt = today.add(Duration(days: Random().nextInt(3)));
-    final updatedAt = createdAt.add(Duration(days: Random().nextInt(3)));
+    final crAt = createdAt ?? today.add(Duration(days: Random().nextInt(3)));
+    final upAt = updatedAt ?? crAt.add(Duration(days: Random().nextInt(3)));
 
     return NoteModel(
-        quillData: {},
+        quillDelta: Delta.fromJson([
+          {
+            "insert": "Gandalf was Grey\n"
+          },
+          {
+            "attributes": {
+              "bold": true
+            },
+            "insert": "But not gandalf the White"
+          },
+          {
+            "insert": "\n\n"
+          },
+          {
+            "attributes": {
+              "bold": true
+            },
+            "insert": "And it is true"
+          },
+          {
+            "attributes": {
+              "header": 1
+            },
+            "insert": "\n"
+          }
+        ]),
         uuid: uuid.v4(),
         filesCount: Random().nextInt(2),
         isImportant: Random().nextBool(),
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        tags: _tags.sublist(0, Random().nextInt(_tags.length)));
+        createdAt: crAt,
+        updatedAt: upAt,
+        tags: tags ?? _tags.sublist(0, Random().nextInt(_tags.length)));
   }
 
   NotesGroupModel fakeGroup(String key, int amount) {

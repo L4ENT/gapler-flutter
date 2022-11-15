@@ -4,6 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CalendarViewItemsGroup extends StateNotifier<NotesGroupModel> {
   CalendarViewItemsGroup(super.state);
+
+  void setInstance(NotesGroupModel group){
+    state = group;
+  }
 }
 
 final calendarViewProvider = StateNotifierProvider.family<
