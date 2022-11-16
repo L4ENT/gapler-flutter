@@ -1,12 +1,47 @@
 import 'package:domo/components/domo_icons.dart';
+import 'package:domo/fake/fake_factories.dart';
+import 'package:domo/models/note.dart';
+import 'package:domo/providers/edit_view_manager_provider.dart';
+import 'package:domo/providers/edit_view_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class _EditViewState extends State<EditView> {
+class EditViewState extends ConsumerState<EditView> {
+  NoteModel? note;
+  final quill.QuillController quillController = quill.QuillController.basic();
+
+  @override
+  void initState() {
+    Future.delayed(Duration.zero, () async {
+      await onInitState(widget.uuid);
+    });
+
+    super.initState();
+  }
+
+  Future<void> onInitState(String? uuid) async {
+    final editManager = ref.watch(editManagerProvider);
+    if (uuid != null) {
+      await editManager.loadEditor(uuid);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Quill controller
-    quill.QuillController quillController = quill.QuillController.basic();
+    // Edit view provider
+    NoteModel? noteModel = ref.watch(editViewProvider);
+
+    // TODO: Refactor this
+    if(noteModel != null) {
+      final editManager = ref.read(editManagerProvider);
+      quillController.document = quill.Document.fromDelta(noteModel.quillDelta);
+      quillController.document.changes.listen((event) {
+        Future.delayed(Duration.zero, () async {
+          await editManager.pushToDb(noteModel);
+        });
+      });
+    }
 
     // Current theme
     ThemeData theme = Theme.of(context);
@@ -19,6 +54,7 @@ class _EditViewState extends State<EditView> {
       iconUnselectedFillColor: Colors.transparent,
       borderRadius: 40,
     );
+
     return Scaffold(
         appBar: AppBar(
           centerTitle: false,
@@ -121,9 +157,11 @@ class _EditViewState extends State<EditView> {
   }
 }
 
-class EditView extends StatefulWidget {
-  const EditView({super.key});
+class EditView extends ConsumerStatefulWidget {
+  const EditView({super.key, this.uuid});
+
+  final String? uuid;
 
   @override
-  State<StatefulWidget> createState() => _EditViewState();
+  EditViewState createState() => EditViewState();
 }

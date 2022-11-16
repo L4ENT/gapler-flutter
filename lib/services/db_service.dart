@@ -16,19 +16,49 @@ class NotesSubService extends SubService {
 
   final Isar isar;
 
+  NoteModel _mapNote(NoteCollectionItem note) {
+    return NoteModel(
+        quillDelta: Delta.fromJson(jsonDecode(note.quillDataJson)),
+        uuid: note.uuid,
+        filesCount: note.filesCount,
+        isImportant: note.isImportant,
+        createdAt: note.createdAt,
+        updatedAt: note.updatedAt,
+        tags: note.tags
+            .map((tag) => TagModel(title: tag.title, uid: tag.uuid))
+            .toList());
+  }
+
   List<NoteModel> _mapNotes(List<NoteCollectionItem> notes) {
     return notes
-        .map((NoteCollectionItem note) => NoteModel(
-            quillDelta: Delta.fromJson(jsonDecode(note.quillDataJson)),
-            uuid: note.uuid,
-            filesCount: note.filesCount,
-            isImportant: note.isImportant,
-            createdAt: note.createdAt,
-            updatedAt: note.updatedAt,
-            tags: note.tags
-                .map((tag) => TagModel(title: tag.title, uid: tag.uuid))
-                .toList()))
+        .map((NoteCollectionItem note) => _mapNote(note))
         .toList();
+  }
+
+  Future<NoteModel?> getByUuid(String byUuid) async {
+    NoteCollectionItem? note = await isar.collection<NoteCollectionItem>().getByUuid(byUuid);
+    if(note == null){
+      return null;
+    }
+    return _mapNote(note);
+  }
+
+  Future<void> putNote(NoteModel noteModel) async{
+    await isar.writeTxn(() async {
+      final note = NoteCollectionItem()
+        ..uuid = noteModel.uuid
+        ..quillDataJson = jsonEncode(noteModel.quillDelta.toJson())
+        ..filesCount = 0
+        ..createdAt = noteModel.createdAt
+        ..updatedAt = noteModel.updatedAt
+        ..tags = noteModel.tags
+            .map<TagEmbedded>((TagModel tm) => TagEmbedded()
+          ..uuid = tm.uid
+          ..title = tm.title)
+            .toList();
+
+      await isar.collection<NoteCollectionItem>().put(note);
+    });
   }
 
   Future<List<NoteModel>> getNotesByDate({required DateTime byDate}) async {

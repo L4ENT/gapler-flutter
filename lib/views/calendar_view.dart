@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:domo/components/domo_icons.dart';
 import 'package:domo/components/main_menu.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class _BottomBarItem extends StatelessWidget {
   const _BottomBarItem({super.key, required this.icon});
@@ -112,11 +113,13 @@ class _Item extends StatelessWidget {
   const _Item(
       {super.key,
       required this.text,
+      required this.uuid,
       required this.tags,
       required this.important,
       required this.files});
 
   final String text;
+  final String uuid;
   final List<TagModel> tags;
   final bool important;
   final int files;
@@ -157,18 +160,23 @@ class _Item extends StatelessWidget {
       ));
     }
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-          border: Border.all(
-              width: 1, color: Theme.of(context).colorScheme.outline)),
-      child: Column(
-        children: itemParts,
+    return GestureDetector(
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.white,
+            border: Border.all(
+                width: 1, color: Theme.of(context).colorScheme.outline)),
+        child: Column(
+          children: itemParts,
+        ),
       ),
+      onTap: () {
+        context.push('/edit/$uuid');
+      },
     );
   }
 }
@@ -188,6 +196,7 @@ class _ItemBatch extends StatelessWidget {
         children: items
             .map((item) => _Item(
                   key: Key('item:${item.uuid}'),
+                  uuid: item.uuid,
                   text: item.shortText,
                   tags: item.tags,
                   important: item.isImportant,
@@ -239,7 +248,6 @@ class CalendarViewState extends ConsumerState<CalendarView> {
     final infScrollLock = ref.read(infiniteScrollLock);
 
     if (percent > 0.7 && !infScrollLock) {
-      debugPrint('Loaaaaaaaad!!!');
       ref.read(infiniteScrollLock.notifier).state = true;
       final cvManager = ref.read(cvManagerProvider);
       List<DateTime> cvDates = ref.read(calendarViewDatesProvider);
@@ -250,7 +258,6 @@ class CalendarViewState extends ConsumerState<CalendarView> {
           await cvManager.loadBatch(dt: byDate, amount: 20);
           ref.read(infiniteScrollLock.notifier).state = false;
         });
-        debugPrint('After!!!');
       }
     }
   }

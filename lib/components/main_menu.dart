@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:domo/components/domo_icons.dart';
+import 'package:go_router/go_router.dart';
 
 const double _headPadding = 20;
 
@@ -67,7 +68,7 @@ class MainMenu extends StatelessWidget {
               icon: DomoIcons.calendar,
               title: const Text('All'),
               onTap: () {
-                Navigator.pushNamed(context, '/edit');
+                context.go( '/edit');
               },
             ),
             MenuItem(
@@ -88,14 +89,14 @@ class MainMenu extends StatelessWidget {
               icon: DomoIcons.tag,
               title: const Text('Home'),
               onTap: () {
-                Navigator.pushNamed(context, '/sign-up');
+                context.go('/sign-up');
               },
             ),
             MenuItem(
               icon: DomoIcons.tag,
               title: const Text('Business'),
               onTap: () {
-                Navigator.pushNamed(context, '/sign-in');
+                context.go('/sign-in');
               },
             ),
           ],
