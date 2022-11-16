@@ -19,6 +19,16 @@ class NoteModel {
       required this.updatedAt,
       required this.tags});
 
+  String get longText {
+    String text = Document.fromDelta(quillDelta).toPlainText();
+    text = text.replaceAll("\n", " ");
+    if(text.length > 41) {
+      return '${text.substring(0, 38)}...';
+    } else {
+      return text;
+    }
+  }
+
   String get shortText {
     String text = Document.fromDelta(quillDelta).toPlainText();
     text = text.replaceAll("\n", " ");
@@ -27,5 +37,26 @@ class NoteModel {
     } else {
       return text;
     }
+  }
+
+  int get volume{
+    int volume = 0;
+    if (longText.isNotEmpty) {
+      volume++;
+    }
+
+    if (longText.length > 20) {
+      volume++;
+    }
+
+    if (tags.isNotEmpty) {
+      volume++;
+    }
+
+    if (isImportant || filesCount > 0) {
+      volume++;
+    }
+
+    return volume;
   }
 }

@@ -5,8 +5,8 @@ import 'package:domo/isar/collections/notes_collection.dart';
 import 'package:domo/models/note.dart';
 import 'package:domo/models/notes_group.dart';
 import 'package:domo/models/tag.dart';
+import 'package:domo/utils.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:intl/intl.dart';
 import 'package:isar/isar.dart';
 
 abstract class SubService {}
@@ -31,9 +31,9 @@ class NotesSubService extends SubService {
         .toList();
   }
 
-  Future<List<NoteModel>> getNotesByDate({required DateTime dt}) async {
-    DateTime startDate = DateTime(dt.year, dt.month, dt.day);
-    DateTime endDate = DateTime(dt.year, dt.month, dt.day + 1);
+  Future<List<NoteModel>> getNotesByDate({required DateTime byDate}) async {
+    DateTime startDate = DateTime(byDate.year, byDate.month, byDate.day);
+    DateTime endDate = DateTime(byDate.year, byDate.month, byDate.day + 1);
 
     List<NoteCollectionItem> notes = await isar
         .collection<NoteCollectionItem>()
@@ -72,43 +72,66 @@ class NotesSubService extends SubService {
     return notesCount;
   }
 
-  Future<List<NotesGroupModel>> getNotesGroupsDaysBatch(
-      {required DateTime dt, int amount = 7}) async {
-    final dateCollectionProp = isar
+  // Future<List<NotesGroupModel>> getNotesGroupsDaysBatch(
+  //     {required DateTime dt, int amount = 7}) async {
+  //   final dateCollectionProp = isar
+  //       .collection<DateIndexCollectionItem>()
+  //       .filter()
+  //       .countGreaterThan(0)
+  //       .dateLessThan(dt)
+  //       .sortByDateDesc()
+  //       .limit(amount)
+  //       .dateProperty();
+  //
+  //   final DateTime minDate = await dateCollectionProp.min() ?? DateTime.now();
+  //   final DateTime maxDate = await dateCollectionProp.max() ?? DateTime.now();
+  //
+  //   List<NoteModel> noteModels =
+  //       await getNotesByDateRange(lower: minDate, upper: maxDate);
+  //
+  //   List<NotesGroupModel> groups = [];
+  //
+  //   DateTime loopDate = maxDate;
+  //   List<NoteModel> loopItems = [];
+  //
+  //   for (NoteModel note in noteModels) {
+  //     if (note.createdAt.difference(loopDate).inDays > 0) {
+  //       if (loopItems.isNotEmpty) {
+  //         final String formatted = getDateOnlyString(loopDate);
+  //         groups.add(
+  //             NotesGroupModel(groupKey: 'days:$formatted', items: loopItems));
+  //       }
+  //       loopDate = note.createdAt;
+  //       loopItems = [];
+  //     }
+  //     loopItems.add(note);
+  //   }
+  //
+  //   return groups;
+  // }
+
+  Future<List<DateTime>> getNoteDatesLte(
+      {required DateTime fromDate, int amount = 7}) async {
+    List<DateTime> dates = await isar
         .collection<DateIndexCollectionItem>()
         .filter()
         .countGreaterThan(0)
-        .dateLessThan(dt)
+        .group((q) => q.dateLessThan(fromDate).or().dateEqualTo(fromDate))
         .sortByDateDesc()
         .limit(amount)
-        .dateProperty();
+        .dateProperty()
+        .findAll();
+    return dates;
+  }
 
-    final DateTime minDate = await dateCollectionProp.min() ?? DateTime.now();
-    final DateTime maxDate = await dateCollectionProp.max() ?? DateTime.now();
+  Future<NotesGroupModel> getNotesDayGroupByDate(
+      {required DateTime byDate, int amount = 7}) async {
 
-    List<NoteModel> noteModels =
-        await getNotesByDateRange(lower: minDate, upper: maxDate);
+    // Getting all notes by date
+    List<NoteModel> notes = await getNotesByDate(byDate: byDate);
 
-    List<NotesGroupModel> groups = [];
-
-    DateTime loopDate = maxDate;
-    List<NoteModel> loopItems = [];
-
-    for (NoteModel note in noteModels) {
-      if (note.createdAt.difference(loopDate).inDays > 0) {
-        if (loopItems.isNotEmpty) {
-          final DateFormat formatter = DateFormat('yyyy-MM-dd');
-          final String formatted = formatter.format(loopDate);
-          groups.add(
-              NotesGroupModel(groupKey: 'days:$formatted', items: loopItems));
-        }
-        loopDate = note.createdAt;
-        loopItems = [];
-      }
-      loopItems.add(note);
-    }
-
-    return groups;
+    return NotesGroupModel(
+        groupKey: ViewGroupKey.dayGroupKeyByDate(byDate), items: notes);
   }
 }
 

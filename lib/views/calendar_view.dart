@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:domo/models/note.dart';
 import 'package:domo/models/notes_group.dart';
+import 'package:domo/models/tag.dart';
 import 'package:domo/providers/calendar_view_manager_provider.dart';
 import 'package:domo/providers/calendar_view_provider.dart';
+import 'package:domo/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:domo/components/domo_icons.dart';
 import 'package:domo/components/main_menu.dart';
@@ -57,11 +61,49 @@ class _ItemLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
       margin: const EdgeInsets.only(right: 4),
       decoration: BoxDecoration(
           color: Colors.grey.shade300, borderRadius: BorderRadius.circular(20)),
       child: Text(title, style: const TextStyle(fontSize: 12)),
+    );
+  }
+}
+
+class _ItemTags extends StatelessWidget {
+  const _ItemTags({super.key, required this.tags});
+
+  final List<TagModel> tags;
+
+  List<String> getStrings() {
+    List<String> strings = [];
+
+    int totalTextLength = 0;
+    int includedCount = 0;
+    for (TagModel tag in tags) {
+      if (totalTextLength + tag.title.length > 14) {
+        break;
+      }
+      if (tag.title.length > 14) {
+        final String shortTitle = '${tag.title.substring(0, 10)}...';
+        strings.add(shortTitle);
+        totalTextLength += shortTitle.length;
+      } else {
+        strings.add(tag.title);
+        totalTextLength += tag.title.length;
+      }
+      includedCount++;
+    }
+    if (includedCount < tags.length) {
+      strings.add('+1');
+    }
+    return strings;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: getStrings().map((title) => _ItemLabel(title: title)).toList(),
     );
   }
 }
@@ -75,7 +117,7 @@ class _Item extends StatelessWidget {
       required this.files});
 
   final String text;
-  final List tags;
+  final List<TagModel> tags;
   final bool important;
   final int files;
 
@@ -90,9 +132,7 @@ class _Item extends StatelessWidget {
     }
     if (tags.isNotEmpty) {
       itemParts.add(const SizedBox(height: 6));
-      itemParts.add(Row(
-        children: tags.map((e) => _ItemLabel(title: e)).toList(),
-      ));
+      itemParts.add(_ItemTags(tags: tags));
     }
 
     if (important || files > 0) {
@@ -147,8 +187,9 @@ class _ItemBatch extends StatelessWidget {
       child: Column(
         children: items
             .map((item) => _Item(
+                  key: Key('item:${item.uuid}'),
                   text: item.shortText,
-                  tags: item.tags.map((e) => e.title).toList(),
+                  tags: item.tags,
                   important: item.isImportant,
                   files: item.filesCount,
                 ))
@@ -158,28 +199,60 @@ class _ItemBatch extends StatelessWidget {
   }
 }
 
-class CalendarView extends ConsumerWidget {
+class CalendarView extends ConsumerStatefulWidget {
   const CalendarView(
       {super.key, required this.title, required this.groupKeyPrefix});
 
   final String title;
   final String groupKeyPrefix;
 
-  int getItemVolume(NoteModel note) {
-    int volume = 0;
-    if (note.shortText.isNotEmpty) {
-      volume++;
-    }
+  @override
+  CalendarViewState createState() => CalendarViewState();
+}
 
-    if (note.tags.isNotEmpty) {
-      volume++;
-    }
+class CalendarViewState extends ConsumerState<CalendarView> {
+  final ScrollController _scrollController = ScrollController();
+  bool loading = false;
 
-    if (note.isImportant || note.filesCount > 0) {
-      volume++;
-    }
+  @override
+  void initState() {
+    Future.delayed(Duration.zero, () async {
+      await onInitState();
+    });
 
-    return volume;
+    _scrollController.addListener(() {
+      onScroll();
+    });
+
+    super.initState();
+  }
+
+  Future<void> onInitState() async {
+    final cvManager = ref.watch(cvManagerProvider);
+    await cvManager.initProviders();
+  }
+
+  void onScroll() {
+    final percent =
+        _scrollController.offset / _scrollController.position.maxScrollExtent;
+
+    final infScrollLock = ref.read(infiniteScrollLock);
+
+    if (percent > 0.7 && !infScrollLock) {
+      debugPrint('Loaaaaaaaad!!!');
+      ref.read(infiniteScrollLock.notifier).state = true;
+      final cvManager = ref.read(cvManagerProvider);
+      List<DateTime> cvDates = ref.read(calendarViewDatesProvider);
+      if (cvDates.isNotEmpty) {
+        DateTime minDate = cvDates.last;
+        Future.delayed(Duration.zero, () async {
+          DateTime byDate = minDate.add(const Duration(days: -1));
+          await cvManager.loadBatch(dt: byDate, amount: 20);
+          ref.read(infiniteScrollLock.notifier).state = false;
+        });
+        debugPrint('After!!!');
+      }
+    }
   }
 
   List<List<NoteModel>> itemsToBatches(List<NoteModel> items) {
@@ -190,15 +263,14 @@ class CalendarView extends ConsumerWidget {
 
     for (int i = 0; i < items.length; i++) {
       NoteModel note = items[i];
-      int itemVolume = getItemVolume(note);
 
-      if (currentBatchSize + itemVolume > 6) {
+      if (currentBatchSize + note.volume > 9) {
         batches.add(batch);
         batch = [note];
-        currentBatchSize = itemVolume;
+        currentBatchSize = note.volume;
       } else {
         batch.add(note);
-        currentBatchSize += itemVolume;
+        currentBatchSize += note.volume;
       }
     }
     if (batch.isNotEmpty) {
@@ -208,55 +280,53 @@ class CalendarView extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(cvManagerProvider);
+  Widget build(BuildContext context) {
+    List<DateTime> cvDates = ref.watch(calendarViewDatesProvider);
     return Scaffold(
         appBar: AppBar(
-          title: Text(title),
+          title: Text(widget.title),
         ),
         drawer: const Drawer(child: MainMenu()),
         body: CustomScrollView(
           reverse: true,
-          slivers: [
-            '2022-01-10',
-            '2022-01-09',
-            '2022-01-08',
-            '2022-01-07',
-            '2022-01-06',
-            '2022-01-05',
-            '2022-01-04',
-            '2022-01-03',
-            '2022-01-02',
-            '2022-01-01',
-            '2021-12-31',
-            '2021-12-30',
-            '2021-12-29',
-            '2021-12-27',
-          ].map((String dateString) {
-            NotesGroupModel itemsGroup =
-                ref.watch(calendarViewProvider('$groupKeyPrefix:$dateString'));
+          controller: _scrollController,
+          slivers: cvDates.map((DateTime groupDate) {
+            // Getting notes group from provider by groupKey
+            NotesGroupModel itemsGroup = ref.watch(calendarViewGroupProvider(
+                ViewGroupKey.buildDateGroupKey(
+                    widget.groupKeyPrefix, groupDate)));
+
             return SliverToBoxAdapter(
+                key: Key(itemsGroup.groupKey),
                 child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(itemsGroup.groupKey),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.only(left: 16),
-                  margin: const EdgeInsets.symmetric(vertical: 16),
-                  height: 280,
-                  child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: itemsToBatches(itemsGroup.items)
-                          .map<Widget>((batch) => _ItemBatch(items: batch))
-                          .toList()),
-                )
-              ],
-            ));
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(getHumanDate(groupDate)),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(left: 16),
+                      margin: const EdgeInsets.symmetric(vertical: 16),
+                      // TODO: Calc height before render from items batches
+                      height: 300,
+                      child: ListView(
+                          key: Key('${itemsGroup.groupKey}:listview'),
+                          scrollDirection: Axis.horizontal,
+                          children: itemsToBatches(itemsGroup.items)
+                              .asMap()
+                              .entries
+                              .map<Widget>((entry) {
+                            return _ItemBatch(
+                                key: Key(
+                                    '${itemsGroup.groupKey}:listview:${entry.key}'),
+                                items: entry.value);
+                          }).toList()),
+                    )
+                  ],
+                ));
           }).toList(),
         ),
         bottomNavigationBar: const _BottomBar());

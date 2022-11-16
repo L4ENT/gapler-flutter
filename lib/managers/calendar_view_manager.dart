@@ -2,6 +2,7 @@ import 'package:domo/models/notes_group.dart';
 import 'package:domo/providers/calendar_view_provider.dart';
 import 'package:domo/providers/db_provider.dart';
 import 'package:domo/services/db_service.dart';
+import 'package:domo/utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CalendarViewManager {
@@ -9,13 +10,42 @@ class CalendarViewManager {
 
   final Ref ref;
 
+  Future<void> initProviders() async {
+    DbService dbService = await ref.watch(dbServiceProvider.future);
+
+    // All dates that contains non zero amount of notes
+    List<DateTime> dates =
+        await dbService.notes.getNoteDatesLte(fromDate: DateTime.now());
+
+    // Init calendar view dates state
+    final cvDatesState = ref.watch(calendarViewDatesProvider.notifier);
+    cvDatesState.setState(dates);
+
+    // Init state for any group of notes for calendar view
+    for (DateTime dt in dates) {
+      final String key = ViewGroupKey.dayGroupKeyByDate(dt);
+      final groupState = ref.watch(calendarViewGroupProvider(key).notifier);
+      final group = await dbService.notes.getNotesDayGroupByDate(byDate: dt);
+      groupState.setInstance(group);
+    }
+  }
+
   Future<void> loadBatch({required DateTime dt, int amount = 7}) async {
     DbService dbService = await ref.watch(dbServiceProvider.future);
-    List<NotesGroupModel> groups =
-        await dbService.notes.getNotesGroupsDaysBatch(dt: dt, amount: amount);
-    for (NotesGroupModel group in groups) {
-      CalendarViewItemsGroup groupState =
-          ref.watch(calendarViewProvider(group.groupKey).notifier);
+
+    // All dates that contains non zero amount of notes
+    List<DateTime> dates =
+    await dbService.notes.getNoteDatesLte(fromDate: dt);
+
+    // Init calendar view dates state
+    final cvDatesState = ref.watch(calendarViewDatesProvider.notifier);
+    cvDatesState.addDates(dates);
+
+    // Init state for any group of notes for calendar view
+    for (DateTime dt in dates) {
+      final String key = ViewGroupKey.dayGroupKeyByDate(dt);
+      final groupState = ref.watch(calendarViewGroupProvider(key).notifier);
+      final group = await dbService.notes.getNotesDayGroupByDate(byDate: dt);
       groupState.setInstance(group);
     }
   }
