@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:domo/isar/collections/date_index_collection.dart';
+import 'package:domo/components/view_condition.dart';
 import 'package:domo/isar/collections/notes_collection.dart';
 import 'package:domo/isar/collections/tags_collection.dart';
 import 'package:domo/models/note.dart';
@@ -11,6 +11,12 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:isar/isar.dart';
 
 abstract class SubService {}
+
+typedef NoteFilterQuery
+    = QueryBuilder<NoteCollectionItem, NoteCollectionItem, QFilterCondition>;
+
+typedef NoteFilterWhere
+    = QueryBuilder<NoteCollectionItem, NoteCollectionItem, QWhere>;
 
 class NotesSubService extends SubService {
   NotesSubService({required this.isar});
@@ -31,20 +37,35 @@ class NotesSubService extends SubService {
   }
 
   List<NoteModel> _mapNotes(List<NoteCollectionItem> notes) {
-    return notes
-        .map((NoteCollectionItem note) => _mapNote(note))
-        .toList();
+    return notes.map((NoteCollectionItem note) => _mapNote(note)).toList();
+  }
+
+  NoteFilterQuery _filterByViewCondition(
+      NoteFilterQuery query, ViewCondition vCond) {
+    NoteFilterQuery newQuery = query;
+
+    final uuid = vCond.tagUUID;
+    if (uuid != null) {
+      newQuery = newQuery.tagsElement((q) => q.uuidEqualTo(uuid));
+    }
+    final isImportant = vCond.isImportant;
+    if (isImportant != null) {
+      newQuery = newQuery.isImportantEqualTo(isImportant);
+    }
+
+    return newQuery;
   }
 
   Future<NoteModel?> getByUuid(String byUuid) async {
-    NoteCollectionItem? note = await isar.collection<NoteCollectionItem>().getByUuid(byUuid);
-    if(note == null){
+    NoteCollectionItem? note =
+        await isar.collection<NoteCollectionItem>().getByUuid(byUuid);
+    if (note == null) {
       return null;
     }
     return _mapNote(note);
   }
 
-  Future<void> putNote(NoteModel noteModel) async{
+  Future<void> putNote(NoteModel noteModel) async {
     await isar.writeTxn(() async {
       final note = NoteCollectionItem()
         ..uuid = noteModel.uuid
@@ -55,21 +76,26 @@ class NotesSubService extends SubService {
         ..updatedAt = noteModel.updatedAt
         ..tags = noteModel.tags
             .map<TagEmbedded>((TagModel tm) => TagEmbedded()
-          ..uuid = tm.uuid
-          ..title = tm.title)
+              ..uuid = tm.uuid
+              ..title = tm.title)
             .toList();
 
       await isar.collection<NoteCollectionItem>().put(note);
     });
   }
 
-  Future<List<NoteModel>> getNotesByDate({required DateTime byDate}) async {
+  Future<List<NoteModel>> getNotesByDate(
+      {required DateTime byDate, ViewCondition? vCond}) async {
     DateTime startDate = DateTime(byDate.year, byDate.month, byDate.day);
     DateTime endDate = DateTime(byDate.year, byDate.month, byDate.day + 1);
 
-    List<NoteCollectionItem> notes = await isar
-        .collection<NoteCollectionItem>()
-        .filter()
+    NoteFilterQuery query = isar.collection<NoteCollectionItem>().filter();
+
+    if (vCond != null) {
+      query = _filterByViewCondition(query, vCond);
+    }
+
+    List<NoteCollectionItem> notes = await query
         .createdAtBetween(startDate, endDate)
         .sortByCreatedAtDesc()
         .findAll();
@@ -78,10 +104,16 @@ class NotesSubService extends SubService {
   }
 
   Future<List<NoteModel>> getNotesByDateRange(
-      {required DateTime lower, required DateTime upper}) async {
-    List<NoteCollectionItem> notes = await isar
-        .collection<NoteCollectionItem>()
-        .filter()
+      {required DateTime lower,
+      required DateTime upper,
+      ViewCondition? vCond}) async {
+    NoteFilterQuery query = isar.collection<NoteCollectionItem>().filter();
+
+    if (vCond != null) {
+      query = _filterByViewCondition(query, vCond);
+    }
+
+    List<NoteCollectionItem> notes = await query
         .group(
             (q) => q.createdAtGreaterThan(lower).or().createdAtEqualTo(lower))
         .createdAtLessThan(upper)
@@ -91,76 +123,54 @@ class NotesSubService extends SubService {
     return _mapNotes(notes);
   }
 
-  Future<int> getNotesCountByDate({required DateTime dt}) async {
+  Future<int> getNotesCountByDate(
+      {required DateTime dt, ViewCondition? vCond}) async {
     DateTime startDate = DateTime(dt.year, dt.month, dt.day);
     DateTime endDate = DateTime(dt.year, dt.month, dt.day + 1);
 
-    int notesCount = await isar
-        .collection<NoteCollectionItem>()
-        .filter()
-        .createdAtBetween(startDate, endDate)
-        .count();
+    NoteFilterQuery query = isar.collection<NoteCollectionItem>().filter();
+
+    if (vCond != null) {
+      query = _filterByViewCondition(query, vCond);
+    }
+
+    int notesCount = await query.createdAtBetween(startDate, endDate).count();
 
     return notesCount;
   }
 
-  // Future<List<NotesGroupModel>> getNotesGroupsDaysBatch(
-  //     {required DateTime dt, int amount = 7}) async {
-  //   final dateCollectionProp = isar
-  //       .collection<DateIndexCollectionItem>()
-  //       .filter()
-  //       .countGreaterThan(0)
-  //       .dateLessThan(dt)
-  //       .sortByDateDesc()
-  //       .limit(amount)
-  //       .dateProperty();
-  //
-  //   final DateTime minDate = await dateCollectionProp.min() ?? DateTime.now();
-  //   final DateTime maxDate = await dateCollectionProp.max() ?? DateTime.now();
-  //
-  //   List<NoteModel> noteModels =
-  //       await getNotesByDateRange(lower: minDate, upper: maxDate);
-  //
-  //   List<NotesGroupModel> groups = [];
-  //
-  //   DateTime loopDate = maxDate;
-  //   List<NoteModel> loopItems = [];
-  //
-  //   for (NoteModel note in noteModels) {
-  //     if (note.createdAt.difference(loopDate).inDays > 0) {
-  //       if (loopItems.isNotEmpty) {
-  //         final String formatted = getDateOnlyString(loopDate);
-  //         groups.add(
-  //             NotesGroupModel(groupKey: 'days:$formatted', items: loopItems));
-  //       }
-  //       loopDate = note.createdAt;
-  //       loopItems = [];
-  //     }
-  //     loopItems.add(note);
-  //   }
-  //
-  //   return groups;
-  // }
-
   Future<List<DateTime>> getNoteDatesLte(
-      {required DateTime fromDate, int amount = 7}) async {
-    List<DateTime> dates = await isar
-        .collection<DateIndexCollectionItem>()
-        .filter()
-        .countGreaterThan(0)
-        .group((q) => q.dateLessThan(fromDate).or().dateEqualTo(fromDate))
-        .sortByDateDesc()
-        .limit(amount)
-        .dateProperty()
-        .findAll();
+      {required DateTime fromDate,
+      int amount = 7,
+      ViewCondition? vCond}) async {
+    List<DateTime> dates = [];
+
+    NoteFilterQuery query = isar.collection<NoteCollectionItem>().filter();
+
+    if (vCond != null) {
+      query = _filterByViewCondition(query, vCond);
+    }
+
+    DateTime dt = fromDate;
+
+    for (int i = 0; i < amount; i++) {
+      final maxDate = await query
+          .group((q) => q.createdAtLessThan(dt).or().createdAtEqualTo(dt))
+          .createdAtProperty()
+          .max();
+
+      if(maxDate != null){
+        dates.add(maxDate);
+        dt = maxDate.add(const Duration(days: -1));
+      }
+    }
     return dates;
   }
 
   Future<NotesGroupModel> getNotesDayGroupByDate(
-      {required DateTime byDate, int amount = 7}) async {
-
+      {required DateTime byDate, int amount = 7, ViewCondition? vCond}) async {
     // Getting all notes by date
-    List<NoteModel> notes = await getNotesByDate(byDate: byDate);
+    List<NoteModel> notes = await getNotesByDate(byDate: byDate, vCond: vCond);
 
     return NotesGroupModel(
         groupKey: ViewGroupKey.dayGroupKeyByDate(byDate), items: notes);
@@ -181,7 +191,7 @@ class TagsSubService extends SubService {
   }
 
   Future<List<TagModel>> getAll() async {
-    final tags =  await isar.collection<TagsCollectionItem>().where().findAll();
+    final tags = await isar.collection<TagsCollectionItem>().where().findAll();
     return _mapList(tags);
   }
 }

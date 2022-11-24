@@ -1,3 +1,4 @@
+import 'package:domo/components/view_condition.dart';
 import 'package:domo/models/note.dart';
 import 'package:domo/models/tag.dart';
 import 'package:domo/providers/calendar_view_provider.dart';
@@ -42,17 +43,16 @@ class EditViewManager {
       DateTime? createdAt,
       DateTime? updatedAt,
       List<TagModel>? tags}) async {
-
     final editViewNotifier = ref.read(editViewProvider.notifier);
 
     final editState = editViewNotifier.updateWith(
-        quillDelta: quillDelta,
-        filesCount: filesCount,
-        isImportant: isImportant,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        tags: tags,
-        uuid: uuid,
+      quillDelta: quillDelta,
+      filesCount: filesCount,
+      isImportant: isImportant,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      tags: tags,
+      uuid: uuid,
     );
 
     await _dbUpdateNote(editState);
@@ -69,9 +69,7 @@ class EditViewManager {
   }
 
   Future<void> removeTag(TagModel tag) async {
-
     final editViewNotifier = ref.read(editViewProvider.notifier);
-
 
     final editState = editViewNotifier.removeTag(tag);
 
@@ -85,11 +83,13 @@ class EditViewManager {
   }
 
   Future<void> _updateCalendarView(NoteModel note) async {
+    // View conditions
+    ViewCondition vCond = ref.read(viewConditionProvider);
     final dbService = await ref.read(dbServiceProvider.future);
-    final group = await dbService.notes.getNotesDayGroupByDate(byDate: note.createdAt);
-    final groupState = ref.read(calendarViewGroupProvider(group.groupKey).notifier);
+    final group = await dbService.notes
+        .getNotesDayGroupByDate(byDate: note.createdAt, vCond: vCond);
+    final groupState =
+        ref.read(calendarViewGroupProvider(group.groupKey).notifier);
     groupState.setInstance(group);
   }
-
-
 }

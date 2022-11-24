@@ -23,6 +23,31 @@ final GoRouter _router = GoRouter(
       },
     ),
     GoRoute(
+      path: '/important',
+      builder: (BuildContext context, GoRouterState state) {
+        return const CalendarView(
+          title: 'Important',
+          groupKeyPrefix: 'days',
+        );
+      },
+    ),
+    GoRoute(
+      path: '/calendar/tag/:uuid/:title',
+      builder: (BuildContext context, GoRouterState state) {
+        String? title = state.params['title'];
+        title ??= 'title';
+
+        String? uuid = state.params['uuid'];
+        uuid ??= 'uuid';
+
+        return CalendarView(
+          key: Key('calendar_view:$title:$uuid'),
+          title: title,
+          groupKeyPrefix: 'days',
+        );
+      },
+    ),
+    GoRoute(
       path: '/sign-in',
       builder: (BuildContext context, GoRouterState state) {
         return const SignInPage();

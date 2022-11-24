@@ -1,3 +1,4 @@
+import 'package:domo/components/view_condition.dart';
 import 'package:domo/fake/fake_factories.dart';
 import 'package:domo/models/notes_group.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,3 +43,6 @@ final calendarViewDatesProvider =
 final infiniteScrollLock = StateProvider<bool>(
   (ref) => false,
 );
+
+
+final viewConditionProvider = StateProvider((ref) => ViewCondition());

@@ -1,5 +1,11 @@
+import 'package:domo/components/view_condition.dart';
+import 'package:domo/models/tag.dart';
+import 'package:domo/providers/calendar_view_provider.dart';
+import 'package:domo/providers/tags_manager_provider.dart';
+import 'package:domo/providers/tags_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:domo/components/domo_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 const double _headPadding = 20;
@@ -36,11 +42,30 @@ class MenuItem extends StatelessWidget {
   // EdgeInsetsGeometry? get contentPadding => EdgeInsets.zero;
 }
 
-class MainMenu extends StatelessWidget {
+class MainMenu extends ConsumerStatefulWidget {
   const MainMenu({super.key});
 
   @override
+  MainMenuSate createState() => MainMenuSate();
+}
+
+class MainMenuSate extends ConsumerState {
+
+  @override
+  void initState() {
+    Future.delayed(Duration.zero, () async {
+      final tagsManager = ref.read(tagsManagerProvider);
+      await tagsManager.loadTags();
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final viewConditionState = ref.read(viewConditionProvider.notifier);
+
+    List<TagModel> tags = ref.watch(tagsProvider);
+
     return ListView(
       // Important: Remove any padding from the ListView.
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -68,14 +93,17 @@ class MainMenu extends StatelessWidget {
               icon: DomoIcons.calendar,
               title: const Text('All'),
               onTap: () {
-                context.go( '/edit');
+                viewConditionState.update((state) => ViewCondition());
+                context.go('/');
               },
             ),
             MenuItem(
               icon: DomoIcons.star,
               title: const Text('Important'),
               onTap: () {
-                Navigator.pop(context);
+                viewConditionState
+                    .update((state) => ViewCondition(isImportant: true));
+                context.go('/important');
               },
             ),
           ],
@@ -84,22 +112,17 @@ class MainMenu extends StatelessWidget {
         const Text('Tags'),
         const SizedBox(height: 8),
         Column(
-          children: [
-            MenuItem(
+          children: tags.map((tag) {
+            return MenuItem(
               icon: DomoIcons.tag,
-              title: const Text('Home'),
+              title: Text(tag.title),
               onTap: () {
-                context.go('/sign-up');
+                viewConditionState
+                    .update((state) => ViewCondition(tagUUID: tag.uuid));
+                context.go('/calendar/tag/${tag.uuid}/${tag.title}');
               },
-            ),
-            MenuItem(
-              icon: DomoIcons.tag,
-              title: const Text('Business'),
-              onTap: () {
-                context.go('/sign-in');
-              },
-            ),
-          ],
+            );
+          }).toList(),
         )
       ],
     );
