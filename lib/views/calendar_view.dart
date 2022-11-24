@@ -97,7 +97,7 @@ class _ItemTags extends StatelessWidget {
       includedCount++;
     }
     if (includedCount < tags.length) {
-      strings.add('+1');
+      strings.add('+${tags.length - includedCount}');
     }
     return strings;
   }

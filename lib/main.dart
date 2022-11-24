@@ -35,6 +35,12 @@ final GoRouter _router = GoRouter(
       },
     ),
     GoRoute(
+      path: '/edit/tags',
+      builder: (BuildContext context, GoRouterState state) {
+        return const EditNoteTagsView();
+      },
+    ),
+    GoRoute(
       path: '/edit/:uuid',
       builder: (BuildContext context, GoRouterState state) {
         String? uuid = state.params['uuid'];

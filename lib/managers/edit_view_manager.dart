@@ -43,7 +43,6 @@ class EditViewManager {
       DateTime? updatedAt,
       List<TagModel>? tags}) async {
 
-    final dbService = await ref.read(dbServiceProvider.future);
     final editViewNotifier = ref.read(editViewProvider.notifier);
 
     final editState = editViewNotifier.updateWith(
@@ -56,10 +55,41 @@ class EditViewManager {
         uuid: uuid,
     );
 
-    await dbService.notes.putNote(editState);
+    await _dbUpdateNote(editState);
+    await _updateCalendarView(editState);
+  }
 
-    final group = await dbService.notes.getNotesDayGroupByDate(byDate: editState.createdAt);
+  Future<void> addTag(TagModel tag) async {
+    final editViewNotifier = ref.read(editViewProvider.notifier);
+
+    final editState = editViewNotifier.addTag(tag);
+
+    await _dbUpdateNote(editState);
+    await _updateCalendarView(editState);
+  }
+
+  Future<void> removeTag(TagModel tag) async {
+
+    final editViewNotifier = ref.read(editViewProvider.notifier);
+
+
+    final editState = editViewNotifier.removeTag(tag);
+
+    await _dbUpdateNote(editState);
+    await _updateCalendarView(editState);
+  }
+
+  Future<void> _dbUpdateNote(NoteModel note) async {
+    final dbService = await ref.read(dbServiceProvider.future);
+    await dbService.notes.putNote(note);
+  }
+
+  Future<void> _updateCalendarView(NoteModel note) async {
+    final dbService = await ref.read(dbServiceProvider.future);
+    final group = await dbService.notes.getNotesDayGroupByDate(byDate: note.createdAt);
     final groupState = ref.read(calendarViewGroupProvider(group.groupKey).notifier);
     groupState.setInstance(group);
   }
+
+
 }

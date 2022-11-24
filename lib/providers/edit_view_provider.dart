@@ -33,15 +33,15 @@ class EditViewNote extends StateNotifier<NoteModel> {
     return newNote;
   }
 
-  void addTag(TagModel tag) {
+  NoteModel addTag(TagModel tag) {
     List<TagModel> tags = [tag, ...state.tags];
-    updateWith(tags: tags);
+    return updateWith(tags: tags);
   }
 
-  void removeTag(TagModel tag) {
+  NoteModel removeTag(TagModel tag) {
     List<TagModel> tags =
         state.tags.where((TagModel t) => t.uuid != tag.uuid).toList();
-    updateWith(tags: tags);
+    return updateWith(tags: tags);
   }
 }
 

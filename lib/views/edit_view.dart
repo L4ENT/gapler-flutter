@@ -1,11 +1,83 @@
 import 'dart:async';
 import 'package:domo/components/domo_icons.dart';
 import 'package:domo/models/note.dart';
+import 'package:domo/models/tag.dart';
 import 'package:domo/providers/edit_view_manager_provider.dart';
 import 'package:domo/providers/edit_view_provider.dart';
+import 'package:domo/providers/tags_manager_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+enum Menu { editTags, shareNote, removeNote }
+
+class EditNoteTagsSate extends ConsumerState {
+
+  List<TagModel> allTags = [];
+
+  @override
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(Duration.zero, () async {
+      final tags = await _getAllTags();
+      setState(() {
+        allTags = tags;
+      });
+    });
+  }
+
+  Future<List<TagModel>> _getAllTags() async {
+    final tagsManager = ref.read(tagsManagerProvider);
+    return await tagsManager.getAll();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    List<TagModel> noteTags =
+    ref.watch(editViewProvider.select((value) => value.tags));
+
+    final tagsUuids = noteTags.map((e) => e.uuid).toList();
+
+
+    return Scaffold(
+      appBar: AppBar(),
+      body: ListView(
+        children: allTags.map((TagModel t) {
+          return Row(
+            key: Key('row:${t.uuid}'),
+            children: [
+              Checkbox(
+                  key: Key('row:checkbox:${t.uuid}'),
+                  value: tagsUuids.contains(t.uuid),
+                  onChanged: (checked) {
+                    final editManager =
+                    ref.read(editManagerProvider);
+                    if (checked == true) {
+                      editManager.addTag(t);
+                    } else {
+                      editManager.removeTag(t);
+                    }
+                  }),
+              const SizedBox(width: 10),
+              Text(key: Key('row:text:${t.uuid}'), t.title)
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class EditNoteTagsView extends ConsumerStatefulWidget {
+  const EditNoteTagsView({super.key});
+
+  @override
+  EditNoteTagsSate createState() => EditNoteTagsSate();
+}
 
 class EditViewState extends ConsumerState<EditView> {
   final quill.QuillController quillController = quill.QuillController.basic();
@@ -87,11 +159,42 @@ class EditViewState extends ConsumerState<EditView> {
                 });
               },
             ),
-            IconButton(
-              icon: const Icon(Icons.more_vert),
-              tooltip: 'Actions',
-              onPressed: () {},
-            ),
+            PopupMenuButton<Menu>(
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<Menu>>[
+                      PopupMenuItem<Menu>(
+                        value: Menu.editTags,
+                        child: Row(
+                          children: [
+                            const Icon(DomoIcons.tag, size: 14),
+                            const SizedBox(width: 8),
+                            Text('Edit tags', style: theme.textTheme.bodyText2)
+                          ],
+                        ),
+                        onTap: () {
+                          context.push('/edit/tags');
+                        },
+                      ),
+                      PopupMenuItem<Menu>(
+                        value: Menu.shareNote,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.share, size: 14),
+                            const SizedBox(width: 8),
+                            Text('Share', style: theme.textTheme.bodyText2)
+                          ],
+                        ),
+                        onTap: () {
+                          debugPrint('Share note');
+                        },
+                      ),
+                      PopupMenuItem<Menu>(
+                        value: Menu.removeNote,
+                        child: Text('Remove', style: theme.textTheme.bodyText2),
+                        onTap: () {
+                          debugPrint('Remove note');
+                        },
+                      ),
+                    ]),
           ],
         ),
         body: Column(

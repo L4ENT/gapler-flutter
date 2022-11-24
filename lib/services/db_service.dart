@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:domo/isar/collections/date_index_collection.dart';
 import 'package:domo/isar/collections/notes_collection.dart';
+import 'package:domo/isar/collections/tags_collection.dart';
 import 'package:domo/models/note.dart';
 import 'package:domo/models/notes_group.dart';
 import 'package:domo/models/tag.dart';
@@ -166,11 +167,32 @@ class NotesSubService extends SubService {
   }
 }
 
+class TagsSubService extends SubService {
+  TagsSubService({required this.isar});
+
+  final Isar isar;
+
+  TagModel _map(TagsCollectionItem tag) {
+    return TagModel(title: tag.title, uuid: tag.uuid);
+  }
+
+  List<TagModel> _mapList(List<TagsCollectionItem> tags) {
+    return tags.map<TagModel>((TagsCollectionItem x) => _map(x)).toList();
+  }
+
+  Future<List<TagModel>> getAll() async {
+    final tags =  await isar.collection<TagsCollectionItem>().where().findAll();
+    return _mapList(tags);
+  }
+}
+
 class DbService {
   final Isar isar;
   late NotesSubService notes;
+  late TagsSubService tags;
 
   DbService({required this.isar}) {
     notes = NotesSubService(isar: isar);
+    tags = TagsSubService(isar: isar);
   }
 }
