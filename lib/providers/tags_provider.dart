@@ -9,7 +9,16 @@ class TagsStateNotifier extends StateNotifier<List<TagModel>> {
   }
 
   void add(TagModel tag) {
-    state = [...state, tag];
+    state = [tag, ...state];
+  }
+
+  void replace(TagModel tag) {
+    state = state.map((tagEl) {
+      if(tagEl.uuid == tag.uuid) {
+        return tag;
+      }
+      return tagEl;
+    }).toList();
   }
 
   void remove(TagModel tag) {

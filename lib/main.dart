@@ -1,5 +1,6 @@
 import 'package:domo/isar/shortcuts.dart';
 import 'package:domo/seed/main_seed.dart';
+import 'package:domo/views/tags_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:domo/views/edit_view.dart';
@@ -71,6 +72,12 @@ final GoRouter _router = GoRouter(
         String? uuid = state.params['uuid'];
         uuid ??= uuidLib.v4();
         return EditView(uuid: uuid);
+      },
+    ),
+    GoRoute(
+      path: '/tags',
+      builder: (BuildContext context, GoRouterState state) {
+        return const TagsView();
       },
     ),
   ],

@@ -50,7 +50,6 @@ class MainMenu extends ConsumerStatefulWidget {
 }
 
 class MainMenuSate extends ConsumerState {
-
   @override
   void initState() {
     Future.delayed(Duration.zero, () async {
@@ -63,6 +62,8 @@ class MainMenuSate extends ConsumerState {
   @override
   Widget build(BuildContext context) {
     final viewConditionState = ref.read(viewConditionProvider.notifier);
+
+    final theme = Theme.of(context);
 
     List<TagModel> tags = ref.watch(tagsProvider);
 
@@ -123,6 +124,16 @@ class MainMenuSate extends ConsumerState {
               },
             );
           }).toList(),
+        ),
+        const SizedBox(height: 16),
+        GestureDetector(
+          child: Text(
+            'Edit tags',
+            style: TextStyle(fontSize: 12, color: theme.colorScheme.primary),
+          ),
+          onTap: () {
+            context.push('/tags');
+          },
         )
       ],
     );

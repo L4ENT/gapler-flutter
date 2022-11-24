@@ -22,4 +22,28 @@ class TagsManager {
     tagsState.setState(tags);
     return tags;
   }
+
+  Future<void> add(TagModel tag) async {
+    DbService dbService = await ref.read(dbServiceProvider.future);
+    dbService.tags.put(tag);
+
+    final tagsState = ref.read(tagsProvider.notifier);
+    tagsState.add(tag);
+  }
+
+  Future<void> replace(TagModel tag) async {
+    DbService dbService = await ref.read(dbServiceProvider.future);
+    dbService.tags.put(tag);
+
+    final tagsState = ref.read(tagsProvider.notifier);
+    tagsState.replace(tag);
+  }
+
+  Future<void> remove(TagModel tag) async {
+    DbService dbService = await ref.read(dbServiceProvider.future);
+    dbService.tags.remove(tag);
+
+    final tagsState = ref.read(tagsProvider.notifier);
+    tagsState.remove(tag);
+  }
 }

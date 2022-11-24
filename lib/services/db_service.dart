@@ -159,7 +159,7 @@ class NotesSubService extends SubService {
           .createdAtProperty()
           .max();
 
-      if(maxDate != null){
+      if (maxDate != null) {
         dates.add(maxDate);
         dt = maxDate.add(const Duration(days: -1));
       }
@@ -191,8 +191,29 @@ class TagsSubService extends SubService {
   }
 
   Future<List<TagModel>> getAll() async {
-    final tags = await isar.collection<TagsCollectionItem>().where().findAll();
+    final tags = await isar
+        .collection<TagsCollectionItem>()
+        .where()
+        .sortByCreatedAtDesc()
+        .findAll();
     return _mapList(tags);
+  }
+
+  Future<void> put(TagModel tagModel) async {
+    await isar.writeTxn(() async {
+      final tag = TagsCollectionItem()
+        ..uuid = tagModel.uuid
+        ..title = tagModel.title
+        ..createdAt = DateTime.now()
+        ..updatedAt = DateTime.now();
+      await isar.collection<TagsCollectionItem>().put(tag);
+    });
+  }
+
+  Future<void> remove(TagModel tagModel) async {
+    await isar.writeTxn(() async {
+      await isar.collection<TagsCollectionItem>().deleteByUuid(tagModel.uuid);
+    });
   }
 }
 
