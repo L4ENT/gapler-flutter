@@ -12,8 +12,29 @@ import 'package:go_router/go_router.dart';
 
 enum Menu { editTags, shareNote, removeNote }
 
-class EditNoteTagsSate extends ConsumerState {
+class _Tag extends StatelessWidget {
+  const _Tag({super.key, required this.title});
 
+  final String title;
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+        margin: const EdgeInsets.only(right: 4),
+        decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(20)),
+        child: Text(title, style: const TextStyle(fontSize: 12)),
+      ),
+      onTap: () {
+        context.push('/edit/tags');
+      },
+    );
+  }
+}
+
+class EditNoteTagsSate extends ConsumerState {
   List<TagModel> allTags = [];
 
   @override
@@ -36,12 +57,10 @@ class EditNoteTagsSate extends ConsumerState {
 
   @override
   Widget build(BuildContext context) {
-
     List<TagModel> noteTags =
-    ref.watch(editViewProvider.select((value) => value.tags));
+        ref.watch(editViewProvider.select((value) => value.tags));
 
     final tagsUuids = noteTags.map((e) => e.uuid).toList();
-
 
     return Scaffold(
       appBar: AppBar(),
@@ -54,8 +73,7 @@ class EditNoteTagsSate extends ConsumerState {
                   key: Key('row:checkbox:${t.uuid}'),
                   value: tagsUuids.contains(t.uuid),
                   onChanged: (checked) {
-                    final editManager =
-                    ref.read(editManagerProvider);
+                    final editManager = ref.read(editManagerProvider);
                     if (checked == true) {
                       editManager.addTag(t);
                     } else {
@@ -125,6 +143,9 @@ class EditViewState extends ConsumerState<EditView> {
 
     bool isImportant =
         ref.watch(editViewProvider.select((value) => value.isImportant));
+
+    List<TagModel> tags =
+        ref.watch(editViewProvider.select((value) => value.tags));
 
     return Scaffold(
         appBar: AppBar(
@@ -200,6 +221,12 @@ class EditViewState extends ConsumerState<EditView> {
         body: Column(
           children: [
             // quill.QuillToolbar.basic(controller: quillController),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16) +
+                  const EdgeInsets.only(top: 16),
+              child:
+                  Row(children: tags.map((e) => _Tag(title: e.title)).toList()),
+            ),
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(16),
