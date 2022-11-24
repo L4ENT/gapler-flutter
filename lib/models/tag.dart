@@ -1,6 +1,6 @@
 class TagModel {
   final String title;
-  final String uid;
+  final String uuid;
 
-  TagModel({required this.title, required this.uid});
+  TagModel({required this.title, required this.uuid});
 }

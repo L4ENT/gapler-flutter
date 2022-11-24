@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'package:domo/components/domo_icons.dart';
-import 'package:domo/fake/fake_factories.dart';
 import 'package:domo/models/note.dart';
 import 'package:domo/providers/edit_view_manager_provider.dart';
 import 'package:domo/providers/edit_view_provider.dart';
@@ -8,41 +8,37 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class EditViewState extends ConsumerState<EditView> {
-  NoteModel? note;
   final quill.QuillController quillController = quill.QuillController.basic();
+
+  Timer? timer;
 
   @override
   void initState() {
-    Future.delayed(Duration.zero, () async {
-      await onInitState(widget.uuid);
-    });
-
     super.initState();
+
+    Future.delayed(Duration.zero, () async {
+      onInit(widget.uuid);
+    });
   }
 
-  Future<void> onInitState(String? uuid) async {
-    final editManager = ref.watch(editManagerProvider);
-    if (uuid != null) {
-      await editManager.loadEditor(uuid);
-    }
+  Future<void> onInit(String uuid) async {
+    final editManager = ref.read(editManagerProvider);
+    NoteModel note = await editManager.loadEditorByUuid(uuid);
+    quillController.document = quill.Document.fromDelta(note.quillDelta);
+    quillController.document.changes.listen((event) {
+      timer?.cancel();
+      timer = Timer(const Duration(milliseconds: 500), () {
+        final editManager = ref.read(editManagerProvider);
+        Future.delayed(Duration.zero, () async {
+          await editManager.updateEditView(
+              quillDelta: event.item1.compose(event.item2));
+        });
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Edit view provider
-    NoteModel? noteModel = ref.watch(editViewProvider);
-
-    // TODO: Refactor this
-    if(noteModel != null) {
-      final editManager = ref.read(editManagerProvider);
-      quillController.document = quill.Document.fromDelta(noteModel.quillDelta);
-      quillController.document.changes.listen((event) {
-        Future.delayed(Duration.zero, () async {
-          await editManager.pushToDb(noteModel);
-        });
-      });
-    }
-
     // Current theme
     ThemeData theme = Theme.of(context);
 
@@ -55,6 +51,9 @@ class EditViewState extends ConsumerState<EditView> {
       borderRadius: 40,
     );
 
+    bool isImportant =
+        ref.watch(editViewProvider.select((value) => value.isImportant));
+
     return Scaffold(
         appBar: AppBar(
           centerTitle: false,
@@ -62,26 +61,35 @@ class EditViewState extends ConsumerState<EditView> {
           actions: [
             IconButton(
               icon: const Icon(DomoIcons.keyboardundo, size: 16),
-              tooltip: 'Show Snackbar',
+              tooltip: 'Undo',
               onPressed: () {
                 quillController.undo();
               },
             ),
             IconButton(
               icon: const Icon(DomoIcons.keyboardredo, size: 16),
-              tooltip: 'Show Snackbar',
+              tooltip: 'Redo',
               onPressed: () {
                 quillController.redo();
               },
             ),
             IconButton(
-              icon: const Icon(DomoIcons.star, size: 16),
-              tooltip: 'Show Snackbar',
-              onPressed: () {},
+              icon: Icon(DomoIcons.star,
+                  size: 16,
+                  color: isImportant
+                      ? theme.colorScheme.primary
+                      : Colors.grey.shade700),
+              tooltip: 'Important',
+              onPressed: () {
+                Future.delayed(Duration.zero, () async {
+                  final editManager = ref.read(editManagerProvider);
+                  editManager.updateEditView(isImportant: !isImportant);
+                });
+              },
             ),
             IconButton(
               icon: const Icon(Icons.more_vert),
-              tooltip: 'Show Snackbar',
+              tooltip: 'Actions',
               onPressed: () {},
             ),
           ],
@@ -158,9 +166,9 @@ class EditViewState extends ConsumerState<EditView> {
 }
 
 class EditView extends ConsumerStatefulWidget {
-  const EditView({super.key, this.uuid});
+  const EditView({super.key, required this.uuid});
 
-  final String? uuid;
+  final String uuid;
 
   @override
   EditViewState createState() => EditViewState();

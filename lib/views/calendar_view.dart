@@ -76,16 +76,17 @@ class _ItemTags extends StatelessWidget {
 
   final List<TagModel> tags;
 
+
   List<String> getStrings() {
     List<String> strings = [];
 
     int totalTextLength = 0;
     int includedCount = 0;
     for (TagModel tag in tags) {
-      if (totalTextLength + tag.title.length > 14) {
+      if (totalTextLength + tag.title.length > 11) {
         break;
       }
-      if (tag.title.length > 14) {
+      if (tag.title.length > 11) {
         final String shortTitle = '${tag.title.substring(0, 10)}...';
         strings.add(shortTitle);
         totalTextLength += shortTitle.length;

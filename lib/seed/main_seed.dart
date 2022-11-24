@@ -25,7 +25,7 @@ Future<void> mainSeed(Isar isar) async {
   await isar.writeTxn(() async {
     for (TagModel tagModel in tags) {
       final tag = TagsCollectionItem()
-        ..uuid = tagModel.uid
+        ..uuid = tagModel.uuid
         ..title = tagModel.title
         ..createdAt = DateTime.now()
         ..updatedAt = DateTime.now();
@@ -44,8 +44,8 @@ Future<void> mainSeed(Isar isar) async {
     int itemsAmount = Random().nextInt(7) + 1;
     for (int i = 0; i < itemsAmount; i++) {
       noteModels.add(cvFactory.fakeItem(
-          createdAt: dt,
-          updatedAt: dt,
+          createdAt: dt.add(Duration(minutes: Random().nextInt(30))),
+          updatedAt: dt.add(Duration(minutes: Random().nextInt(30) + 30)),
           tags: tags.sublist(0, Random().nextInt(tags.length))));
     }
     dt = dt.add(Duration(days: -Random().nextInt(3)));
@@ -65,7 +65,7 @@ Future<void> mainSeed(Isar isar) async {
         ..updatedAt = noteModel.updatedAt
         ..tags = noteModel.tags
             .map<TagEmbedded>((TagModel tm) => TagEmbedded()
-          ..uuid = tm.uid
+          ..uuid = tm.uuid
           ..title = tm.title)
             .toList();
 

@@ -20,9 +20,8 @@ class FakeTagFactory {
 
   TagModel fake() {
     return TagModel(
-      title: labelNames[Random().nextInt(labelNames.length)],
-      uid: uuid.v4()
-    );
+        title: labelNames[Random().nextInt(labelNames.length)],
+        uuid: uuid.v4());
   }
 }
 
@@ -33,47 +32,45 @@ class FakeCalendarViewFactory {
     _tags = newTagsList(3);
   }
 
-  List<TagModel> newTagsList(int amount){
+  List<TagModel> newTagsList(int amount) {
     List<TagModel> newTags = [];
 
     FakeTagFactory tagsFactory = FakeTagFactory();
 
-    for(int i = 0; i < amount; i++) {
+    for (int i = 0; i < amount; i++) {
       newTags.add(tagsFactory.fake());
     }
 
     return newTags;
   }
 
-  NoteModel fakeItem({DateTime? createdAt, DateTime? updatedAt, List<TagModel>? tags}) {
+  NoteModel fakeItem(
+      {DateTime? createdAt, DateTime? updatedAt, List<TagModel>? tags}) {
     final today = DateTime.now();
-    final crAt = createdAt ?? today.add(Duration(days: Random().nextInt(3)));
+
+    final rand = Random();
+
+    final crAt = createdAt ??
+        today.add(Duration(
+            days: rand.nextInt(3),
+            hours: rand.nextInt(5),
+            minutes: rand.nextInt(60)));
     final upAt = updatedAt ?? crAt.add(Duration(days: Random().nextInt(3)));
 
     return NoteModel(
         quillDelta: Delta.fromJson([
+          {"insert": "Gandalf was Grey\n"},
           {
-            "insert": "Gandalf was Grey\n"
-          },
-          {
-            "attributes": {
-              "bold": true
-            },
+            "attributes": {"bold": true},
             "insert": "But not gandalf the White"
           },
+          {"insert": "\n\n"},
           {
-            "insert": "\n\n"
-          },
-          {
-            "attributes": {
-              "bold": true
-            },
+            "attributes": {"bold": true},
             "insert": "And it is true"
           },
           {
-            "attributes": {
-              "header": 1
-            },
+            "attributes": {"header": 1},
             "insert": "\n"
           }
         ]),
@@ -86,8 +83,7 @@ class FakeCalendarViewFactory {
   }
 
   NotesGroupModel fakeGroup(String key, int amount) {
-    return NotesGroupModel(groupKey: key, items: [
-      for (var i = 1; i <= amount; i++) fakeItem()
-    ]);
+    return NotesGroupModel(
+        groupKey: key, items: [for (var i = 1; i <= amount; i++) fakeItem()]);
   }
 }

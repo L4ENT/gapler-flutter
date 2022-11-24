@@ -25,7 +25,7 @@ class NotesSubService extends SubService {
         createdAt: note.createdAt,
         updatedAt: note.updatedAt,
         tags: note.tags
-            .map((tag) => TagModel(title: tag.title, uid: tag.uuid))
+            .map((tag) => TagModel(title: tag.title, uuid: tag.uuid))
             .toList());
   }
 
@@ -48,12 +48,13 @@ class NotesSubService extends SubService {
       final note = NoteCollectionItem()
         ..uuid = noteModel.uuid
         ..quillDataJson = jsonEncode(noteModel.quillDelta.toJson())
+        ..isImportant = noteModel.isImportant
         ..filesCount = 0
         ..createdAt = noteModel.createdAt
         ..updatedAt = noteModel.updatedAt
         ..tags = noteModel.tags
             .map<TagEmbedded>((TagModel tm) => TagEmbedded()
-          ..uuid = tm.uid
+          ..uuid = tm.uuid
           ..title = tm.title)
             .toList();
 

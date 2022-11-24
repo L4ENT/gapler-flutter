@@ -1,10 +1,12 @@
-
+import 'package:domo/models/note.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 List<DateTime> datesRangeToPast({required DateTime dt, int amount = 7}) {
   List<DateTime> dates = [];
   DateTime loopDate = dt;
-  for(int i = 0; i < amount; i++) {
+  for (int i = 0; i < amount; i++) {
     dates.add(loopDate.add(Duration(days: -i)));
   }
   return dates;
@@ -23,7 +25,6 @@ String getHumanDate(DateTime dt) {
 }
 
 class ViewGroupKey {
-
   static String dateKeyFormat(DateTime dt) {
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
     final String formatted = formatter.format(dt);
@@ -37,4 +38,16 @@ class ViewGroupKey {
   static String buildDateGroupKey(String groupKey, DateTime byDate) {
     return '$groupKey:${dateKeyFormat(byDate)}';
   }
+}
+
+NoteModel getEmptyNote({String? uuid}) {
+  DateTime today = DateTime.now();
+  return NoteModel(
+      quillDelta: Delta.fromJson([]),
+      uuid: uuid ?? const Uuid().v4(),
+      filesCount: 0,
+      isImportant: false,
+      createdAt: today,
+      updatedAt: today,
+      tags: []);
 }

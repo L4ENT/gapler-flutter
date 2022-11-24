@@ -1,5 +1,5 @@
-// import 'package:domo/isar/shortcuts.dart';
-// import 'package:domo/seed/main_seed.dart';
+import 'package:domo/isar/shortcuts.dart';
+import 'package:domo/seed/main_seed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:domo/views/edit_view.dart';
@@ -7,6 +7,9 @@ import 'package:domo/views/sign_up_view.dart';
 import 'package:domo/views/calendar_view.dart';
 import 'package:domo/views/sign_in_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
+
+var uuidLib = const Uuid();
 
 final GoRouter _router = GoRouter(
   routes: <RouteBase>[
@@ -34,7 +37,8 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/edit/:uuid',
       builder: (BuildContext context, GoRouterState state) {
-        final uuid = state.params['uuid'];
+        String? uuid = state.params['uuid'];
+        uuid ??= uuidLib.v4();
         return EditView(uuid: uuid);
       },
     ),
