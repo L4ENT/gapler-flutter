@@ -13,21 +13,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class _BottomBarItem extends StatelessWidget {
-  const _BottomBarItem({super.key, required this.icon});
+  const _BottomBarItem({super.key, required this.icon, this.onPressed});
 
   final IconData icon;
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
+
+    ColorScheme colors = Theme.of(context).colorScheme;
+
     return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: ShapeDecoration(
-        shape: CircleBorder(
-            side: BorderSide(
-                width: 1, color: Theme.of(context).colorScheme.outline)),
-        color: Colors.white,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
       ),
-      child: Icon(icon, size: 18, color: Colors.grey),
+      child: Material(
+        color: colors.primary,
+        shape: const CircleBorder(),
+        child: InkWell(
+          onTap: onPressed,
+          customBorder: const CircleBorder(),
+          child: Ink(
+            height: 42,
+            width: 42,
+            decoration: const BoxDecoration(shape: BoxShape.circle),
+            child: Icon(icon, size: 18, color: Colors.white),
+          ),
+        )
+      ),
     );
   }
 }
@@ -38,20 +51,26 @@ class _BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            border: Border(
-                top: BorderSide(
-                    width: 1, color: Theme.of(context).colorScheme.outline))),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            _BottomBarItem(icon: DomoIcons.attachment),
-            SizedBox(width: 10),
-            _BottomBarItem(icon: DomoIcons.note)
-          ],
-        ));
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          border: Border(
+              top: BorderSide(
+                  width: 1, color: Theme.of(context).colorScheme.outline))),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // _BottomBarItem(icon: DomoIcons.attachment),
+          // SizedBox(width: 10),
+          _BottomBarItem(
+            icon: DomoIcons.note,
+            onPressed: () {
+              context.push('/edit');
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -75,7 +94,6 @@ class _ItemTags extends StatelessWidget {
   const _ItemTags({super.key, required this.tags});
 
   final List<TagModel> tags;
-
 
   List<String> getStrings() {
     List<String> strings = [];
@@ -291,96 +309,57 @@ class CalendarViewState extends ConsumerState<CalendarView> {
   Widget build(BuildContext context) {
     List<DateTime> cvDates = ref.watch(calendarViewDatesProvider);
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        drawer: const Drawer(child: MainMenu()),
-        body: CustomScrollView(
-            reverse: true,
-            controller: _scrollController,
-            slivers: [
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    DateTime groupDate = cvDates[index];
-                    NotesGroupModel itemsGroup = ref.watch(
-                        calendarViewGroupProvider(
-                            ViewGroupKey.buildDateGroupKey(
-                                widget.groupKeyPrefix, groupDate)));
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      drawer: const Drawer(child: MainMenu()),
+      body: CustomScrollView(
+          reverse: true,
+          controller: _scrollController,
+          slivers: [
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+                  DateTime groupDate = cvDates[index];
+                  NotesGroupModel itemsGroup = ref.watch(
+                      calendarViewGroupProvider(ViewGroupKey.buildDateGroupKey(
+                          widget.groupKeyPrefix, groupDate)));
 
-                    return Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(getHumanDate(groupDate)),
-                          ),
+                  return Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(getHumanDate(groupDate)),
                         ),
-                        Container(
-                          padding: const EdgeInsets.only(left: 16),
-                          margin: const EdgeInsets.symmetric(vertical: 16),
-                          // TODO: Calc height before render from items batches
-                          height: 300,
-                          child: ListView(
-                              key: Key('${itemsGroup.groupKey}:listview'),
-                              scrollDirection: Axis.horizontal,
-                              children: itemsToBatches(itemsGroup.items)
-                                  .asMap()
-                                  .entries
-                                  .map<Widget>((entry) {
-                                return _ItemBatch(
-                                    key: Key(
-                                        '${itemsGroup.groupKey}:listview:${entry.key}'),
-                                    items: entry.value);
-                              }).toList()),
-                        )
-                      ],
-                    );
-                  },
-                  childCount: cvDates.length,
-                ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(left: 16),
+                        margin: const EdgeInsets.symmetric(vertical: 16),
+                        // TODO: Calc height before render from items batches
+                        height: 300,
+                        child: ListView(
+                            key: Key('${itemsGroup.groupKey}:listview'),
+                            scrollDirection: Axis.horizontal,
+                            children: itemsToBatches(itemsGroup.items)
+                                .asMap()
+                                .entries
+                                .map<Widget>((entry) {
+                              return _ItemBatch(
+                                  key: Key(
+                                      '${itemsGroup.groupKey}:listview:${entry.key}'),
+                                  items: entry.value);
+                            }).toList()),
+                      )
+                    ],
+                  );
+                },
+                childCount: cvDates.length,
               ),
-            ]
-            // cvDates.map((DateTime groupDate) {
-            //   // Getting notes group from provider by groupKey
-            //   NotesGroupModel itemsGroup = ref.watch(calendarViewGroupProvider(
-            //       ViewGroupKey.buildDateGroupKey(
-            //           widget.groupKeyPrefix, groupDate)));
-            //
-            //   return SliverToBoxAdapter(
-            //       key: Key(itemsGroup.groupKey),
-            //       child: Column(
-            //         children: [
-            //           Container(
-            //             padding: const EdgeInsets.only(left: 16),
-            //             child: Align(
-            //               alignment: Alignment.centerLeft,
-            //               child: Text(getHumanDate(groupDate)),
-            //             ),
-            //           ),
-            //           Container(
-            //             padding: const EdgeInsets.only(left: 16),
-            //             margin: const EdgeInsets.symmetric(vertical: 16),
-            //             // TODO: Calc height before render from items batches
-            //             height: 300,
-            //             child: ListView(
-            //                 key: Key('${itemsGroup.groupKey}:listview'),
-            //                 scrollDirection: Axis.horizontal,
-            //                 children: itemsToBatches(itemsGroup.items)
-            //                     .asMap()
-            //                     .entries
-            //                     .map<Widget>((entry) {
-            //                   return _ItemBatch(
-            //                       key: Key(
-            //                           '${itemsGroup.groupKey}:listview:${entry.key}'),
-            //                       items: entry.value);
-            //                 }).toList()),
-            //           )
-            //         ],
-            //       ));
-            // }).toList(),
             ),
-        bottomNavigationBar: const _BottomBar());
+          ]),
+      bottomNavigationBar: const _BottomBar(),
+    );
   }
 }

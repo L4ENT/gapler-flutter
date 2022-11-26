@@ -67,6 +67,13 @@ final GoRouter _router = GoRouter(
       },
     ),
     GoRoute(
+      path: '/edit',
+      builder: (BuildContext context, GoRouterState state) {
+        String uuid = uuidLib.v4();
+        return EditView(uuid: uuid);
+      },
+    ),
+    GoRoute(
       path: '/edit/:uuid',
       builder: (BuildContext context, GoRouterState state) {
         String? uuid = state.params['uuid'];

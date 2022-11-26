@@ -20,19 +20,25 @@ class MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            children: [
-              Icon(icon,
-                  size: 16, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 10),
-              title
-            ],
+    return Container(
+        padding: const EdgeInsets.symmetric(vertical: 0),
+        child: Material(
+          child: InkWell(
+            onTap: onTap,
+            child: Ink(
+              height: 48,
+              child: Row(
+                children: [
+                  Icon(icon,
+                      size: 16, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 10),
+                  title
+                ],
+              ),
+            )
           ),
-        ));
+        )
+    );
   }
   //
   // @override

@@ -114,7 +114,9 @@ class EditViewState extends ConsumerState<EditView> {
   Future<void> onInit(String uuid) async {
     final editManager = ref.read(editManagerProvider);
     NoteModel note = await editManager.loadEditorByUuid(uuid);
-    quillController.document = quill.Document.fromDelta(note.quillDelta);
+    if(note.quillDelta.isNotEmpty) {
+      quillController.document = quill.Document.fromDelta(note.quillDelta);
+    }
     quillController.document.changes.listen((event) {
       timer?.cancel();
       timer = Timer(const Duration(milliseconds: 500), () {
