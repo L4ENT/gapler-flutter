@@ -12,6 +12,13 @@ import 'package:domo/components/main_menu.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+class _Batches {
+  _Batches({required this.maxBatchSize, required this.batches});
+
+  final int maxBatchSize;
+  List<List<NoteModel>> batches;
+}
+
 class _BottomBarItem extends StatelessWidget {
   const _BottomBarItem({super.key, required this.icon, this.onPressed});
 
@@ -20,7 +27,6 @@ class _BottomBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     ColorScheme colors = Theme.of(context).colorScheme;
 
     return Container(
@@ -28,19 +34,18 @@ class _BottomBarItem extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Material(
-        color: colors.primary,
-        shape: const CircleBorder(),
-        child: InkWell(
-          onTap: onPressed,
-          customBorder: const CircleBorder(),
-          child: Ink(
-            height: 42,
-            width: 42,
-            decoration: const BoxDecoration(shape: BoxShape.circle),
-            child: Icon(icon, size: 18, color: Colors.white),
-          ),
-        )
-      ),
+          color: colors.primary,
+          shape: const CircleBorder(),
+          child: InkWell(
+            onTap: onPressed,
+            customBorder: const CircleBorder(),
+            child: Ink(
+              height: 42,
+              width: 42,
+              decoration: const BoxDecoration(shape: BoxShape.circle),
+              child: Icon(icon, size: 18, color: Colors.white),
+            ),
+          )),
     );
   }
 }
@@ -281,10 +286,11 @@ class CalendarViewState extends ConsumerState<CalendarView> {
     }
   }
 
-  List<List<NoteModel>> itemsToBatches(List<NoteModel> items) {
+  _Batches _itemsToBatches(List<NoteModel> items) {
     List<List<NoteModel>> batches = [];
 
     int currentBatchSize = 0;
+    int maxBatchSize = 0;
     List<NoteModel> batch = [];
 
     for (int i = 0; i < items.length; i++) {
@@ -298,12 +304,21 @@ class CalendarViewState extends ConsumerState<CalendarView> {
         batch.add(note);
         currentBatchSize += note.volume;
       }
+
+      if (currentBatchSize >= maxBatchSize) {
+        maxBatchSize = currentBatchSize;
+      }
     }
     if (batch.isNotEmpty) {
       batches.add(batch);
     }
-    return batches;
+    return _Batches(maxBatchSize: maxBatchSize, batches: batches);
   }
+
+  double _getGroupHeight(int maxBatchSize) {
+    return maxBatchSize * 33.0;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -324,7 +339,7 @@ class CalendarViewState extends ConsumerState<CalendarView> {
                   NotesGroupModel itemsGroup = ref.watch(
                       calendarViewGroupProvider(ViewGroupKey.buildDateGroupKey(
                           widget.groupKeyPrefix, groupDate)));
-
+                  _Batches batchesResult = _itemsToBatches(itemsGroup.items);
                   return Column(
                     children: [
                       Container(
@@ -338,11 +353,11 @@ class CalendarViewState extends ConsumerState<CalendarView> {
                         padding: const EdgeInsets.only(left: 16),
                         margin: const EdgeInsets.symmetric(vertical: 16),
                         // TODO: Calc height before render from items batches
-                        height: 300,
+                        height: _getGroupHeight(batchesResult.maxBatchSize),
                         child: ListView(
                             key: Key('${itemsGroup.groupKey}:listview'),
                             scrollDirection: Axis.horizontal,
-                            children: itemsToBatches(itemsGroup.items)
+                            children: batchesResult.batches
                                 .asMap()
                                 .entries
                                 .map<Widget>((entry) {
