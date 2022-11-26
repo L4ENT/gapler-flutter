@@ -1,4 +1,5 @@
 import 'package:domo/models/tag.dart';
+import 'package:domo/providers/calendar_view_manager_provider.dart';
 import 'package:domo/providers/db_provider.dart';
 import 'package:domo/providers/tags_provider.dart';
 import 'package:domo/services/db_service.dart';
@@ -37,6 +38,9 @@ class TagsManager {
 
     final tagsState = ref.read(tagsProvider.notifier);
     tagsState.replace(tag);
+
+    final calendarViewManager = ref.read(cvManagerProvider);
+    await calendarViewManager.initProviders();
   }
 
   Future<void> remove(TagModel tag) async {
@@ -45,5 +49,8 @@ class TagsManager {
 
     final tagsState = ref.read(tagsProvider.notifier);
     tagsState.remove(tag);
+
+    final calendarViewManager = ref.read(cvManagerProvider);
+    await calendarViewManager.initProviders();
   }
 }

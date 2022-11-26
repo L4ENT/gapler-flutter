@@ -62,14 +62,24 @@ Future<void> mainSeed(Isar isar) async {
         ..quillDataJson = jsonEncode(noteModel.quillDelta.toJson())
         ..filesCount = 0
         ..createdAt = noteModel.createdAt
-        ..updatedAt = noteModel.updatedAt
-        ..tags = noteModel.tags
-            .map<TagEmbedded>((TagModel tm) => TagEmbedded()
-          ..uuid = tm.uuid
-          ..title = tm.title)
-            .toList();
+        ..updatedAt = noteModel.updatedAt;
 
       await isar.collection<NoteCollectionItem>().put(note);
+
+      if (noteModel.tags.isNotEmpty) {
+        final noteTags = await isar
+            .collection<TagsCollectionItem>()
+            .filter()
+            .anyOf(noteModel.tags.map((t) => t.uuid),
+                (q, element) => q.uuidEqualTo(element))
+            .findAll();
+
+        for (TagsCollectionItem tag in noteTags) {
+          note.tags.add(tag);
+        }
+        await note.tags.save();
+      }
+
     }
   });
 

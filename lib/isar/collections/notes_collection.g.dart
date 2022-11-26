@@ -38,19 +38,13 @@ const NoteCollectionItemSchema = CollectionSchema(
       name: r'quill_data_json',
       type: IsarType.string,
     ),
-    r'tags': PropertySchema(
-      id: 4,
-      name: r'tags',
-      type: IsarType.objectList,
-      target: r'TagEmbedded',
-    ),
     r'updated_at': PropertySchema(
-      id: 5,
+      id: 4,
       name: r'updated_at',
       type: IsarType.dateTime,
     ),
     r'uuid': PropertySchema(
-      id: 6,
+      id: 5,
       name: r'uuid',
       type: IsarType.string,
     )
@@ -75,8 +69,15 @@ const NoteCollectionItemSchema = CollectionSchema(
       ],
     )
   },
-  links: {},
-  embeddedSchemas: {r'TagEmbedded': TagEmbeddedSchema},
+  links: {
+    r'tags': LinkSchema(
+      id: 2587370352561601140,
+      name: r'tags',
+      target: r'tags',
+      single: false,
+    )
+  },
+  embeddedSchemas: {},
   getId: _noteCollectionItemGetId,
   getLinks: _noteCollectionItemGetLinks,
   attach: _noteCollectionItemAttach,
@@ -90,14 +91,6 @@ int _noteCollectionItemEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.quillDataJson.length * 3;
-  bytesCount += 3 + object.tags.length * 3;
-  {
-    final offsets = allOffsets[TagEmbedded]!;
-    for (var i = 0; i < object.tags.length; i++) {
-      final value = object.tags[i];
-      bytesCount += TagEmbeddedSchema.estimateSize(value, offsets, allOffsets);
-    }
-  }
   bytesCount += 3 + object.uuid.length * 3;
   return bytesCount;
 }
@@ -112,14 +105,8 @@ void _noteCollectionItemSerialize(
   writer.writeLong(offsets[1], object.filesCount);
   writer.writeBool(offsets[2], object.isImportant);
   writer.writeString(offsets[3], object.quillDataJson);
-  writer.writeObjectList<TagEmbedded>(
-    offsets[4],
-    allOffsets,
-    TagEmbeddedSchema.serialize,
-    object.tags,
-  );
-  writer.writeDateTime(offsets[5], object.updatedAt);
-  writer.writeString(offsets[6], object.uuid);
+  writer.writeDateTime(offsets[4], object.updatedAt);
+  writer.writeString(offsets[5], object.uuid);
 }
 
 NoteCollectionItem _noteCollectionItemDeserialize(
@@ -134,15 +121,8 @@ NoteCollectionItem _noteCollectionItemDeserialize(
   object.id = id;
   object.isImportant = reader.readBool(offsets[2]);
   object.quillDataJson = reader.readString(offsets[3]);
-  object.tags = reader.readObjectList<TagEmbedded>(
-        offsets[4],
-        TagEmbeddedSchema.deserialize,
-        allOffsets,
-        TagEmbedded(),
-      ) ??
-      [];
-  object.updatedAt = reader.readDateTime(offsets[5]);
-  object.uuid = reader.readString(offsets[6]);
+  object.updatedAt = reader.readDateTime(offsets[4]);
+  object.uuid = reader.readString(offsets[5]);
   return object;
 }
 
@@ -162,16 +142,8 @@ P _noteCollectionItemDeserializeProp<P>(
     case 3:
       return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readObjectList<TagEmbedded>(
-            offset,
-            TagEmbeddedSchema.deserialize,
-            allOffsets,
-            TagEmbedded(),
-          ) ??
-          []) as P;
-    case 5:
       return (reader.readDateTime(offset)) as P;
-    case 6:
+    case 5:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -184,12 +156,14 @@ Id _noteCollectionItemGetId(NoteCollectionItem object) {
 
 List<IsarLinkBase<dynamic>> _noteCollectionItemGetLinks(
     NoteCollectionItem object) {
-  return [];
+  return [object.tags];
 }
 
 void _noteCollectionItemAttach(
     IsarCollection<dynamic> col, Id id, NoteCollectionItem object) {
   object.id = id;
+  object.tags
+      .attach(col, col.isar.collection<TagsCollectionItem>(), r'tags', id);
 }
 
 extension NoteCollectionItemByIndex on IsarCollection<NoteCollectionItem> {
@@ -689,95 +663,6 @@ extension NoteCollectionItemQueryFilter
   }
 
   QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
-      tagsLengthEqualTo(int length) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'tags',
-        length,
-        true,
-        length,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
-      tagsIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'tags',
-        0,
-        true,
-        0,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
-      tagsIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'tags',
-        0,
-        false,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
-      tagsLengthLessThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'tags',
-        0,
-        true,
-        length,
-        include,
-      );
-    });
-  }
-
-  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
-      tagsLengthGreaterThan(
-    int length, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'tags',
-        length,
-        include,
-        999999,
-        true,
-      );
-    });
-  }
-
-  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
-      tagsLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'tags',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
-      );
-    });
-  }
-
-  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
       updatedAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -971,17 +856,71 @@ extension NoteCollectionItemQueryFilter
 }
 
 extension NoteCollectionItemQueryObject
+    on QueryBuilder<NoteCollectionItem, NoteCollectionItem, QFilterCondition> {}
+
+extension NoteCollectionItemQueryLinks
     on QueryBuilder<NoteCollectionItem, NoteCollectionItem, QFilterCondition> {
   QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
-      tagsElement(FilterQuery<TagEmbedded> q) {
+      tags(FilterQuery<TagsCollectionItem> q) {
     return QueryBuilder.apply(this, (query) {
-      return query.object(q, r'tags');
+      return query.link(q, r'tags');
+    });
+  }
+
+  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
+      tagsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'tags', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
+      tagsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'tags', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
+      tagsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'tags', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
+      tagsLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'tags', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
+      tagsLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'tags', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<NoteCollectionItem, NoteCollectionItem, QAfterFilterCondition>
+      tagsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(
+          r'tags', lower, includeLower, upper, includeUpper);
     });
   }
 }
-
-extension NoteCollectionItemQueryLinks
-    on QueryBuilder<NoteCollectionItem, NoteCollectionItem, QFilterCondition> {}
 
 extension NoteCollectionItemQuerySortBy
     on QueryBuilder<NoteCollectionItem, NoteCollectionItem, QSortBy> {
@@ -1249,13 +1188,6 @@ extension NoteCollectionItemQueryProperty
       quillDataJsonProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'quill_data_json');
-    });
-  }
-
-  QueryBuilder<NoteCollectionItem, List<TagEmbedded>, QQueryOperations>
-      tagsProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'tags');
     });
   }
 

@@ -46,7 +46,7 @@ class NotesSubService extends SubService {
 
     final uuid = vCond.tagUUID;
     if (uuid != null) {
-      newQuery = newQuery.tagsElement((q) => q.uuidEqualTo(uuid));
+      newQuery = newQuery.tags((q) => q.uuidEqualTo(uuid));
     }
     final isImportant = vCond.isImportant;
     if (isImportant != null) {
@@ -73,14 +73,22 @@ class NotesSubService extends SubService {
         ..isImportant = noteModel.isImportant
         ..filesCount = 0
         ..createdAt = noteModel.createdAt
-        ..updatedAt = noteModel.updatedAt
-        ..tags = noteModel.tags
-            .map<TagEmbedded>((TagModel tm) => TagEmbedded()
-              ..uuid = tm.uuid
-              ..title = tm.title)
-            .toList();
+        ..updatedAt = noteModel.updatedAt;
 
       await isar.collection<NoteCollectionItem>().put(note);
+      if (noteModel.tags.isNotEmpty) {
+        final noteTags = await isar
+            .collection<TagsCollectionItem>()
+            .filter()
+            .anyOf(noteModel.tags.map((t) => t.uuid),
+                (q, element) => q.uuidEqualTo(element))
+            .findAll();
+
+        for (TagsCollectionItem tag in noteTags) {
+          note.tags.add(tag);
+        }
+        await note.tags.save();
+      }
     });
   }
 
@@ -201,11 +209,20 @@ class TagsSubService extends SubService {
 
   Future<void> put(TagModel tagModel) async {
     await isar.writeTxn(() async {
-      final tag = TagsCollectionItem()
-        ..uuid = tagModel.uuid
-        ..title = tagModel.title
-        ..createdAt = DateTime.now()
-        ..updatedAt = DateTime.now();
+
+      TagsCollectionItem? tag = await isar.tagsCollectionItems.getByUuid(tagModel.uuid);
+
+      if(tag == null) {
+        tag = TagsCollectionItem()
+          ..uuid = tagModel.uuid
+          ..title = tagModel.title
+          ..createdAt = DateTime.now()
+          ..updatedAt = DateTime.now();
+      } else {
+        tag.title = tagModel.title;
+        tag.updatedAt = DateTime.now();
+      }
+
       await isar.collection<TagsCollectionItem>().put(tag);
     });
   }

@@ -1,3 +1,4 @@
+import 'package:domo/isar/collections/tags_collection.dart';
 import 'package:isar/isar.dart';
 
 part 'notes_collection.g.dart';
@@ -25,7 +26,7 @@ class NoteCollectionItem {
   @Name("updated_at")
   late DateTime updatedAt;
 
-  List<TagEmbedded> tags = [];
+  final tags = IsarLinks<TagsCollectionItem>();
 }
 
 @embedded
