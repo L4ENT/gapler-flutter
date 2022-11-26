@@ -4,7 +4,9 @@ import 'package:domo/models/tag.dart';
 import 'package:domo/providers/calendar_view_provider.dart';
 import 'package:domo/providers/db_provider.dart';
 import 'package:domo/providers/edit_view_provider.dart';
+import 'package:domo/providers/tags_provider.dart';
 import 'package:domo/utils.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,7 +21,26 @@ class EditViewManager {
     if (noteModel != null) {
       return noteModel;
     } else {
-      return getEmptyNote(uuid: byUuid);
+      final viewCondition = ref.read(viewConditionProvider);
+
+      final isImportant = viewCondition.isImportant;
+
+      List<TagModel> tags = [];
+
+      final tagUuid = viewCondition.tagUUID;
+      if (tagUuid != null) {
+        final allTags = ref.read(tagsProvider);
+        try {
+          TagModel tag = allTags.firstWhere(
+            (element) => element.uuid == tagUuid,
+          );
+          tags.add(tag);
+        } on StateError {
+          debugPrint('No such tag');
+        }
+      }
+
+      return getEmptyNote(uuid: byUuid, isImportant: isImportant, tags: tags);
     }
   }
 

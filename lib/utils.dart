@@ -1,4 +1,5 @@
 import 'package:domo/models/note.dart';
+import 'package:domo/models/tag.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -40,14 +41,19 @@ class ViewGroupKey {
   }
 }
 
-NoteModel getEmptyNote({String? uuid}) {
+NoteModel getEmptyNote({
+  String? uuid,
+  bool? isImportant,
+  List<TagModel>? tags,
+}) {
   DateTime today = DateTime.now();
   return NoteModel(
-      quillDelta: Delta.fromJson([]),
-      uuid: uuid ?? const Uuid().v4(),
-      filesCount: 0,
-      isImportant: false,
-      createdAt: today,
-      updatedAt: today,
-      tags: []);
+    quillDelta: Delta.fromJson([]),
+    uuid: uuid ?? const Uuid().v4(),
+    filesCount: 0,
+    isImportant: isImportant ?? false,
+    createdAt: today,
+    updatedAt: today,
+    tags: tags ?? [],
+  );
 }
