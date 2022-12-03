@@ -183,6 +183,12 @@ class NotesSubService extends SubService {
     return NotesGroupModel(
         groupKey: ViewGroupKey.dayGroupKeyByDate(byDate), items: notes);
   }
+
+  Future<void> remove(String uuid) async {
+    await isar.writeTxn(() async {
+      await isar.collection<NoteCollectionItem>().deleteByUuid(uuid);
+    });
+  }
 }
 
 class TagsSubService extends SubService {
@@ -209,10 +215,10 @@ class TagsSubService extends SubService {
 
   Future<void> put(TagModel tagModel) async {
     await isar.writeTxn(() async {
+      TagsCollectionItem? tag =
+          await isar.tagsCollectionItems.getByUuid(tagModel.uuid);
 
-      TagsCollectionItem? tag = await isar.tagsCollectionItems.getByUuid(tagModel.uuid);
-
-      if(tag == null) {
+      if (tag == null) {
         tag = TagsCollectionItem()
           ..uuid = tagModel.uuid
           ..title = tagModel.title

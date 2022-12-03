@@ -114,7 +114,7 @@ class EditViewState extends ConsumerState<EditView> {
   Future<void> onInit(String uuid) async {
     final editManager = ref.read(editManagerProvider);
     NoteModel note = await editManager.loadEditorByUuid(uuid);
-    if(note.quillDelta.isNotEmpty) {
+    if (note.quillDelta.isNotEmpty) {
       quillController.document = quill.Document.fromDelta(note.quillDelta);
     }
     quillController.document.changes.listen((event) {
@@ -211,12 +211,43 @@ class EditViewState extends ConsumerState<EditView> {
                         },
                       ),
                       PopupMenuItem<Menu>(
-                        value: Menu.removeNote,
-                        child: Text('Remove', style: theme.textTheme.bodyText2),
-                        onTap: () {
-                          debugPrint('Remove note');
-                        },
-                      ),
+                          value: Menu.removeNote,
+                          child:
+                              Text('Remove', style: theme.textTheme.bodyText2),
+                          onTap: () {
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((timeStamp) {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) => AlertDialog(
+                                  title: const Text('Are you sure?'),
+                                  content: const Text(
+                                      'The note will be permanently removed.'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, 'Cancel'),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        Future.delayed(Duration.zero, () async {
+                                          final editManager =
+                                              ref.read(editManagerProvider);
+                                          NoteModel note = await editManager
+                                              .loadEditorByUuid(widget.uuid);
+                                          await editManager.remove(note);
+                                        });
+                                        Navigator.pop(context, 'OK');
+                                        context.pop();
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            });
+                          }),
                     ]),
           ],
         ),

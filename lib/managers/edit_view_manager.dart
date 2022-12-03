@@ -113,4 +113,10 @@ class EditViewManager {
         ref.read(calendarViewGroupProvider(group.groupKey).notifier);
     groupState.setInstance(group);
   }
+
+  Future<void> remove(NoteModel noteModel) async {
+    final dbService = await ref.read(dbServiceProvider.future);
+    await dbService.notes.remove(noteModel.uuid);
+    await _updateCalendarView(noteModel);
+  }
 }
