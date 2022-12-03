@@ -61,3 +61,16 @@ NoteModel getEmptyNote({
 bool isSameDate(DateTime a, DateTime b) {
   return a.year == b.year && a.month == b.month && a.day == b.day;
 }
+
+String formatForCv(DateTime dt) {
+  final today = DateTime.now();
+  DateFormat formatter;
+  if(today.year == dt.year) {
+    formatter = DateFormat('d MMM - EEEE');
+  } else {
+    formatter = DateFormat('d MMM, YYYY - EEEE');
+  }
+
+  final String formatted = formatter.format(dt);
+  return formatted;
+}

@@ -4,6 +4,7 @@ import 'package:domo/providers/calendar_view_provider.dart';
 import 'package:domo/providers/tags_manager_provider.dart';
 import 'package:domo/providers/tags_provider.dart';
 import 'package:domo/providers/url_provider.dart';
+import 'package:domo/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:domo/components/domo_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -95,9 +96,9 @@ class MainMenuSate extends ConsumerState {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('June 20, 2022 - Saturday'),
-              Icon(DomoIcons.settings,
-                  size: 16, color: Theme.of(context).colorScheme.primary),
+              Text(formatForCv(DateTime.now())),
+              // Icon(DomoIcons.settings,
+              //     size: 16, color: Theme.of(context).colorScheme.primary),
             ],
           ),
         ),

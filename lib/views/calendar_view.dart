@@ -101,7 +101,7 @@ class _ItemTags extends StatelessWidget {
   final letterWidth = 5;
   final tagPadding = 12;
   final tagMargin = 4;
-  final maxContentWidth = 128;
+  final maxContentWidth = 124;
 
   final List<TagModel> tags;
 
@@ -362,7 +362,7 @@ class CalendarViewState extends ConsumerState<CalendarView> {
   }
 
   double _getGroupHeight(int maxBatchSize) {
-    return maxBatchSize * 33.0;
+    return maxBatchSize * 33.0 + 33.0;
   }
 
   @override
@@ -391,7 +391,7 @@ class CalendarViewState extends ConsumerState<CalendarView> {
                         padding: const EdgeInsets.only(left: 16),
                         child: Align(
                           alignment: Alignment.centerLeft,
-                          child: Text(getHumanDate(groupDate)),
+                          child: Text(formatForCv(groupDate)),
                         ),
                       ),
                       Container(
