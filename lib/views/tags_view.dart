@@ -4,6 +4,7 @@ import 'package:domo/providers/tags_manager_provider.dart';
 import 'package:domo/providers/tags_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 class TagsView extends ConsumerStatefulWidget {
@@ -81,6 +82,12 @@ class TagsViewState extends ConsumerState {
                   decoration: const InputDecoration(
                     hintText: 'New tag',
                   ),
+                  onSubmitted: (String? value) {
+                    final uuid = const Uuid().v4();
+                    final title = _newTagController.text;
+                    tagsManager.add(TagModel(title: title, uuid: uuid));
+                    _newTagFocus.unfocus();
+                  },
                 ),
               )),
           ...tags.map((tag) {
@@ -90,15 +97,37 @@ class TagsViewState extends ConsumerState {
                 leading: isActive(tag)
                     ? GestureDetector(
                         child: const Icon(Icons.delete, size: 22),
-                        onTap: () {
-                          Future.delayed(Duration.zero, () async {
-                            tagsManager.remove(tag);
-                          });
-                        })
-                    : Icon(DomoIcons.tag, size: 18, color: theme.colorScheme.primary),
+                        onTap: () => showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            title: const Text('Are you sure?'),
+                            content: const Text(
+                                'The tag will be permanently removed from all notes.'),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, 'Cancel'),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  Future.delayed(Duration.zero, () async {
+                                    tagsManager.remove(tag);
+                                  });
+                                  Navigator.pop(context, 'OK');
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Icon(DomoIcons.tag,
+                        size: 18, color: theme.colorScheme.primary),
                 trailing: isActive(tag)
                     ? GestureDetector(
-                        child: Icon(Icons.check, size: 24, color: theme.colorScheme.primary),
+                        child: Icon(Icons.check,
+                            size: 24, color: theme.colorScheme.primary),
                         onTap: () {
                           Future.delayed(Duration.zero, () async {
                             await tagsManager
