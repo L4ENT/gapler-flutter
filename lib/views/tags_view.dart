@@ -123,6 +123,14 @@ class TagsViewState extends ConsumerState {
                     decoration: InputDecoration(
                       hintText: tag.title,
                     ),
+                    onSubmitted: (String? value) {
+                      Future.delayed(Duration.zero, () async {
+                        await tagsManager
+                            .replace(tag.copyWith(title: controller.text));
+                      });
+                      FocusScope.of(context).unfocus();
+                      setActiveTag(null);
+                    },
                   ),
                 ));
           }).toList()
