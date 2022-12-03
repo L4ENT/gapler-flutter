@@ -98,25 +98,71 @@ class _ItemLabel extends StatelessWidget {
 class _ItemTags extends StatelessWidget {
   const _ItemTags({super.key, required this.tags});
 
+  final letterWidth = 5;
+  final tagPadding = 12;
+  final tagMargin = 4;
+  final maxContentWidth = 128;
+
   final List<TagModel> tags;
+
+  int _calcTagWidth(String title) {
+    return (title.length * letterWidth) + tagPadding + tagMargin;
+  }
+
+  String _getShortTitle(String title, {int? width}) {
+    int titleWidth = _calcTagWidth(title);
+    int allowedWidth = width ?? maxContentWidth;
+    if (titleWidth > allowedWidth) {
+      int letters = (allowedWidth / letterWidth).round();
+      if (letters < title.length) {
+        return '${title.substring(0, letters - 3)}...';
+      } else {
+        return title;
+      }
+    }
+    return title;
+  }
+
+  String _normalizeTitle(String title, int remainingWidth) {
+    if(remainingWidth <= 0) {
+      return title;
+    }
+
+    int letters = (remainingWidth / letterWidth).round();
+    if(letters  < 5) {
+      return title;
+    }
+
+    if (_calcTagWidth(title) > remainingWidth) {
+      return _getShortTitle(title, width: remainingWidth);
+    } else {
+      return title;
+    }
+  }
 
   List<String> getStrings() {
     List<String> strings = [];
 
-    int totalTextLength = 0;
+    int totalWidth = 0;
     int includedCount = 0;
-    for (TagModel tag in tags) {
-      if (totalTextLength + tag.title.length > 11) {
+
+    for (int i = 0; i < tags.length; i++) {
+      TagModel tag = tags[i];
+      int remainingWidth = maxContentWidth - totalWidth - tagMargin - tagPadding;
+
+      if(i != tags.length - 1) {
+        remainingWidth -= 24;
+      }
+
+      final normalizedTitle = _normalizeTitle(tag.title, remainingWidth);
+
+      if (totalWidth + _calcTagWidth(normalizedTitle) > maxContentWidth) {
         break;
       }
-      if (tag.title.length > 11) {
-        final String shortTitle = '${tag.title.substring(0, 10)}...';
-        strings.add(shortTitle);
-        totalTextLength += shortTitle.length;
-      } else {
-        strings.add(tag.title);
-        totalTextLength += tag.title.length;
-      }
+
+      strings.add(normalizedTitle);
+      totalWidth += _calcTagWidth(normalizedTitle);
+
       includedCount++;
     }
     if (includedCount < tags.length) {
@@ -318,7 +364,6 @@ class CalendarViewState extends ConsumerState<CalendarView> {
   double _getGroupHeight(int maxBatchSize) {
     return maxBatchSize * 33.0;
   }
-
 
   @override
   Widget build(BuildContext context) {
