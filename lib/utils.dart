@@ -57,3 +57,7 @@ NoteModel getEmptyNote({
     tags: tags ?? [],
   );
 }
+
+bool isSameDate(DateTime a, DateTime b) {
+  return a.year == b.year && a.month == b.month && a.day == b.day;
+}

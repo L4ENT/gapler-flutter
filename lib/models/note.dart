@@ -20,6 +20,9 @@ class NoteModel {
       required this.tags});
 
   String get longText {
+    if(quillDelta.isEmpty) {
+      return 'Empty note ...';
+    }
     String text = Document.fromDelta(quillDelta).toPlainText();
     text = text.replaceAll("\n", " ");
     if(text.length > 41) {
@@ -30,6 +33,9 @@ class NoteModel {
   }
 
   String get shortText {
+    if(quillDelta.isEmpty) {
+      return 'Empty note ...';
+    }
     String text = Document.fromDelta(quillDelta).toPlainText();
     text = text.replaceAll("\n", " ");
     if(text.length > 41) {

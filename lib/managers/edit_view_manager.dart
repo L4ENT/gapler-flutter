@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:domo/components/view_condition.dart';
 import 'package:domo/models/note.dart';
 import 'package:domo/models/tag.dart';
@@ -109,9 +110,25 @@ class EditViewManager {
     final dbService = await ref.read(dbServiceProvider.future);
     final group = await dbService.notes
         .getNotesDayGroupByDate(byDate: note.createdAt, vCond: vCond);
-    final groupState =
-        ref.read(calendarViewGroupProvider(group.groupKey).notifier);
-    groupState.setInstance(group);
+
+    if (group.items.isEmpty) {
+      final datesState = ref.read(calendarViewDatesProvider.notifier);
+      datesState.removeDate(note.createdAt);
+    } else {
+      final groupState = ref.read(
+        calendarViewGroupProvider(group.groupKey).notifier,
+      );
+      groupState.setInstance(group);
+
+      final dates = ref.read(calendarViewDatesProvider);
+      bool hasDate = dates.firstWhereOrNull(
+            (dt) => isSameDate(dt, note.createdAt),
+          ) != null;
+      if (!hasDate) {
+        final datesState = ref.read(calendarViewDatesProvider.notifier);
+        datesState.addDate(note.createdAt);
+      }
+    }
   }
 
   Future<void> remove(NoteModel noteModel) async {

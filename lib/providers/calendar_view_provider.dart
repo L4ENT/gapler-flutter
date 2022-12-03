@@ -1,6 +1,7 @@
 import 'package:domo/components/view_condition.dart';
 import 'package:domo/fake/fake_factories.dart';
 import 'package:domo/models/notes_group.dart';
+import 'package:domo/utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CalendarViewItemsGroup extends StateNotifier<NotesGroupModel> {
@@ -26,6 +27,18 @@ class CalendarViewDates extends StateNotifier<List<DateTime>> {
     List<DateTime> uniqueDatesList = setOfDates.toList();
     uniqueDatesList.sort((b, a) => a.compareTo(b));
     state = uniqueDatesList;
+  }
+
+  addDate(DateTime date) {
+    Set<DateTime> setOfDates = {...state};
+    setOfDates.add(date);
+    List<DateTime> uniqueDatesList = setOfDates.toList();
+    uniqueDatesList.sort((b, a) => a.compareTo(b));
+    state = uniqueDatesList;
+  }
+
+  removeDate(DateTime date) {
+    state = state.where((el) => !isSameDate(el, date)).toList();
   }
 }
 
