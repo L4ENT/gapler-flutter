@@ -1,4 +1,4 @@
-import 'package:domo/models/note.dart';
+import 'package:gapler/models/note.dart';
 
 class NotesGroupModel {
   final String groupKey;

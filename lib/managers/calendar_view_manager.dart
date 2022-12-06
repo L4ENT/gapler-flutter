@@ -1,9 +1,9 @@
-import 'package:domo/components/view_condition.dart';
-import 'package:domo/models/notes_group.dart';
-import 'package:domo/providers/calendar_view_provider.dart';
-import 'package:domo/providers/db_provider.dart';
-import 'package:domo/services/db_service.dart';
-import 'package:domo/utils.dart';
+import 'package:gapler/components/view_condition.dart';
+import 'package:gapler/models/notes_group.dart';
+import 'package:gapler/providers/calendar_view_provider.dart';
+import 'package:gapler/providers/db_provider.dart';
+import 'package:gapler/services/db_service.dart';
+import 'package:gapler/utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CalendarViewManager {

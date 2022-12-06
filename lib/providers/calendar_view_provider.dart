@@ -1,7 +1,7 @@
-import 'package:domo/components/view_condition.dart';
-import 'package:domo/fake/fake_factories.dart';
-import 'package:domo/models/notes_group.dart';
-import 'package:domo/utils.dart';
+import 'package:gapler/components/view_condition.dart';
+import 'package:gapler/fake/fake_factories.dart';
+import 'package:gapler/models/notes_group.dart';
+import 'package:gapler/utils.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CalendarViewItemsGroup extends StateNotifier<NotesGroupModel> {

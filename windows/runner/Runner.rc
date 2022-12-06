@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.toruza" "\0"
-            VALUE "FileDescription", "domo" "\0"
+            VALUE "FileDescription", "gapler" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "domo" "\0"
+            VALUE "InternalName", "gapler" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 com.toruza. All rights reserved." "\0"
-            VALUE "OriginalFilename", "domo.exe" "\0"
-            VALUE "ProductName", "domo" "\0"
+            VALUE "OriginalFilename", "gapler.exe" "\0"
+            VALUE "ProductName", "gapler" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

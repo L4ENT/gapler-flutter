@@ -1,4 +1,4 @@
-package com.toruza.domo
+package com.toruza.gapler
 
 import io.flutter.embedding.android.FlutterActivity
 

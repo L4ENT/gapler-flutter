@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.toruza.domo">
+    package="com.toruza.gapler">
    <application
-        android:label="domo"
+        android:label="gapler"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

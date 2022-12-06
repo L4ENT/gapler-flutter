@@ -1,6 +1,6 @@
-import 'package:domo/models/note.dart';
-import 'package:domo/models/tag.dart';
-import 'package:domo/utils.dart';
+import 'package:gapler/models/note.dart';
+import 'package:gapler/models/tag.dart';
+import 'package:gapler/utils.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

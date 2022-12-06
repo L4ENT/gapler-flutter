@@ -29,7 +29,7 @@ class _SignUpPageState extends State<SignUpPage> {
               children: [
                 Image.asset('images/logo-login.png'),
                 const SizedBox(height: 28),
-                Text('Welcome to Domo',
+                Text('Welcome to Gapler',
                     style: t.textTheme.headline2
                         ?.copyWith(color: t.colorScheme.primary)),
                 const SizedBox(height: 36),

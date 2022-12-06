@@ -1,14 +1,14 @@
 import 'dart:math';
 
-import 'package:domo/models/note.dart';
-import 'package:domo/models/notes_group.dart';
-import 'package:domo/models/tag.dart';
-import 'package:domo/providers/calendar_view_manager_provider.dart';
-import 'package:domo/providers/calendar_view_provider.dart';
-import 'package:domo/utils.dart';
+import 'package:gapler/models/note.dart';
+import 'package:gapler/models/notes_group.dart';
+import 'package:gapler/models/tag.dart';
+import 'package:gapler/providers/calendar_view_manager_provider.dart';
+import 'package:gapler/providers/calendar_view_provider.dart';
+import 'package:gapler/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:domo/components/domo_icons.dart';
-import 'package:domo/components/main_menu.dart';
+import 'package:gapler/components/domo_icons.dart';
+import 'package:gapler/components/main_menu.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 

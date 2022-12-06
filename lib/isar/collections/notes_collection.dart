@@ -1,4 +1,4 @@
-import 'package:domo/isar/collections/tags_collection.dart';
+import 'package:gapler/isar/collections/tags_collection.dart';
 import 'package:isar/isar.dart';
 
 part 'notes_collection.g.dart';

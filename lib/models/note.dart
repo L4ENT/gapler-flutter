@@ -1,4 +1,4 @@
-import 'package:domo/models/tag.dart';
+import 'package:gapler/models/tag.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
 class NoteModel {
