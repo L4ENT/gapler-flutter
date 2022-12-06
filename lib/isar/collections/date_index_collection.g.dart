@@ -54,7 +54,7 @@ const DateIndexCollectionItemSchema = CollectionSchema(
   getId: _dateIndexCollectionItemGetId,
   getLinks: _dateIndexCollectionItemGetLinks,
   attach: _dateIndexCollectionItemAttach,
-  version: '3.0.4',
+  version: '3.0.5',
 );
 
 int _dateIndexCollectionItemEstimateSize(

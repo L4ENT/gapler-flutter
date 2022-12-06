@@ -93,6 +93,7 @@ final GoRouter _router = GoRouter(
 void main() async {
   // final isar = await isarOpen();
   // await mainSeed(isar);
+  // await cleanSeed(isar);
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -104,16 +105,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData currentThemeData = Theme.of(context);
     return MaterialApp.router(
-        title: 'Domo', theme: _customTheme(context), routerConfig: _router
-        // initialRoute: '/',
-        // routes: {
-        //   // When navigating to the "/" route, build the FirstScreen widget.
-        //   '/': (context) => const CalendarView(title: 'All', groupKeyPrefix: 'days',),
-        //   '/sign-in': (context) => const SignInPage(),
-        //   '/sign-up': (context) => const SignUpPage(),
-        //   '/edit': (context) => const EditView(),
-        // },
-        );
+      title: 'Domo',
+      theme: _customTheme(context),
+      routerConfig: _router,
+    );
   }
 
   ThemeData _customTheme(BuildContext context) {

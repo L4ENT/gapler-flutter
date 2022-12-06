@@ -368,57 +368,64 @@ class CalendarViewState extends ConsumerState<CalendarView> {
   @override
   Widget build(BuildContext context) {
     List<DateTime> cvDates = ref.watch(calendarViewDatesProvider);
+
+    final scrollView = CustomScrollView(
+        reverse: true,
+        controller: _scrollController,
+        slivers: [
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                DateTime groupDate = cvDates[index];
+                NotesGroupModel itemsGroup = ref.watch(
+                    calendarViewGroupProvider(ViewGroupKey.buildDateGroupKey(
+                        widget.groupKeyPrefix, groupDate)));
+                _Batches batchesResult = _itemsToBatches(itemsGroup.items);
+                return Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(formatForCv(groupDate)),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(left: 16),
+                      margin: const EdgeInsets.symmetric(vertical: 16),
+                      // TODO: Calc height before render from items batches
+                      height: _getGroupHeight(batchesResult.maxBatchSize),
+                      child: ListView(
+                          key: Key('${itemsGroup.groupKey}:listview'),
+                          scrollDirection: Axis.horizontal,
+                          children: batchesResult.batches
+                              .asMap()
+                              .entries
+                              .map<Widget>((entry) {
+                            return _ItemBatch(
+                                key: Key(
+                                    '${itemsGroup.groupKey}:listview:${entry.key}'),
+                                items: entry.value);
+                          }).toList()),
+                    )
+                  ],
+                );
+              },
+              childCount: cvDates.length,
+            ),
+          ),
+        ]);
+
+     const placeHolder = Center(
+      child: Text('Looks like there are no notes yet.'),
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
       drawer: const Drawer(child: MainMenu()),
-      body: CustomScrollView(
-          reverse: true,
-          controller: _scrollController,
-          slivers: [
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-                  DateTime groupDate = cvDates[index];
-                  NotesGroupModel itemsGroup = ref.watch(
-                      calendarViewGroupProvider(ViewGroupKey.buildDateGroupKey(
-                          widget.groupKeyPrefix, groupDate)));
-                  _Batches batchesResult = _itemsToBatches(itemsGroup.items);
-                  return Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(formatForCv(groupDate)),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 16),
-                        margin: const EdgeInsets.symmetric(vertical: 16),
-                        // TODO: Calc height before render from items batches
-                        height: _getGroupHeight(batchesResult.maxBatchSize),
-                        child: ListView(
-                            key: Key('${itemsGroup.groupKey}:listview'),
-                            scrollDirection: Axis.horizontal,
-                            children: batchesResult.batches
-                                .asMap()
-                                .entries
-                                .map<Widget>((entry) {
-                              return _ItemBatch(
-                                  key: Key(
-                                      '${itemsGroup.groupKey}:listview:${entry.key}'),
-                                  items: entry.value);
-                            }).toList()),
-                      )
-                    ],
-                  );
-                },
-                childCount: cvDates.length,
-              ),
-            ),
-          ]),
+      body: cvDates.isEmpty ? placeHolder : scrollView,
       bottomNavigationBar: const _BottomBar(),
     );
   }

@@ -81,7 +81,7 @@ const NoteCollectionItemSchema = CollectionSchema(
   getId: _noteCollectionItemGetId,
   getLinks: _noteCollectionItemGetLinks,
   attach: _noteCollectionItemAttach,
-  version: '3.0.4',
+  version: '3.0.5',
 );
 
 int _noteCollectionItemEstimateSize(

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 enum Menu { editTags, shareNote, removeNote }
 
@@ -207,7 +208,28 @@ class EditViewState extends ConsumerState<EditView> {
                           ],
                         ),
                         onTap: () {
-                          debugPrint('Share note');
+                          if (quillController.document.isEmpty()) {
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((timestamp) {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) => AlertDialog(
+                                  title: const Text('Oops...'),
+                                  content:
+                                      const Text('Can\'t share empty note.'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, 'Ok'),
+                                      child: const Text('Ok'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            });
+                          } else {
+                            Share.share(quillController.document.toPlainText());
+                          }
                         },
                       ),
                       PopupMenuItem<Menu>(

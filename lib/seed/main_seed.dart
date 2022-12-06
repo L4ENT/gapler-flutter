@@ -100,3 +100,18 @@ Future<void> mainSeed(Isar isar) async {
   });
 
 }
+
+Future<void> cleanSeed(Isar isar) async {
+  await isar.writeTxn(() async {
+    await isar.collection<TagsCollectionItem>().clear();
+  });
+
+  await isar.writeTxn(() async {
+    await isar.collection<NoteCollectionItem>().clear();
+  });
+
+  await isar.writeTxn(() async {
+    await isar.collection<DateIndexCollectionItem>().clear();
+  });
+
+}
