@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:domo/components/view_condition.dart';
-import 'package:domo/isar/collections/notes_collection.dart';
-import 'package:domo/isar/collections/tags_collection.dart';
-import 'package:domo/models/note.dart';
-import 'package:domo/models/notes_group.dart';
-import 'package:domo/models/tag.dart';
-import 'package:domo/utils.dart';
+import 'package:gapler/components/view_condition.dart';
+import 'package:gapler/isar/collections/notes_collection.dart';
+import 'package:gapler/isar/collections/tags_collection.dart';
+import 'package:gapler/models/note.dart';
+import 'package:gapler/models/notes_group.dart';
+import 'package:gapler/models/tag.dart';
+import 'package:gapler/utils.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:isar/isar.dart';
 

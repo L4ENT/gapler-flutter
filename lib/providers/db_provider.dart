@@ -1,5 +1,5 @@
-import 'package:domo/isar/shortcuts.dart';
-import 'package:domo/services/db_service.dart';
+import 'package:gapler/isar/shortcuts.dart';
+import 'package:gapler/services/db_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 

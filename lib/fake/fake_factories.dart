@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'package:domo/models/tag.dart';
+import 'package:gapler/models/tag.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:domo/models/note.dart';
-import 'package:domo/models/notes_group.dart';
+import 'package:gapler/models/note.dart';
+import 'package:gapler/models/notes_group.dart';
 
 var uuid = const Uuid();
 

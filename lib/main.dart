@@ -1,12 +1,12 @@
-import 'package:domo/isar/shortcuts.dart';
-import 'package:domo/seed/main_seed.dart';
-import 'package:domo/views/tags_view.dart';
+import 'package:gapler/isar/shortcuts.dart';
+import 'package:gapler/seed/main_seed.dart';
+import 'package:gapler/views/tags_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:domo/views/edit_view.dart';
-import 'package:domo/views/sign_up_view.dart';
-import 'package:domo/views/calendar_view.dart';
-import 'package:domo/views/sign_in_view.dart';
+import 'package:gapler/views/edit_view.dart';
+import 'package:gapler/views/sign_up_view.dart';
+import 'package:gapler/views/calendar_view.dart';
+import 'package:gapler/views/sign_in_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
@@ -105,7 +105,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData currentThemeData = Theme.of(context);
     return MaterialApp.router(
-      title: 'Domo',
+      title: 'Gapler',
       theme: _customTheme(context),
       routerConfig: _router,
     );

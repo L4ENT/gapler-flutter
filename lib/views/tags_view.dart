@@ -1,7 +1,7 @@
-import 'package:domo/components/domo_icons.dart';
-import 'package:domo/models/tag.dart';
-import 'package:domo/providers/tags_manager_provider.dart';
-import 'package:domo/providers/tags_provider.dart';
+import 'package:gapler/components/domo_icons.dart';
+import 'package:gapler/models/tag.dart';
+import 'package:gapler/providers/tags_manager_provider.dart';
+import 'package:gapler/providers/tags_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

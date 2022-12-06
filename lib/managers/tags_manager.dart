@@ -1,8 +1,8 @@
-import 'package:domo/models/tag.dart';
-import 'package:domo/providers/calendar_view_manager_provider.dart';
-import 'package:domo/providers/db_provider.dart';
-import 'package:domo/providers/tags_provider.dart';
-import 'package:domo/services/db_service.dart';
+import 'package:gapler/models/tag.dart';
+import 'package:gapler/providers/calendar_view_manager_provider.dart';
+import 'package:gapler/providers/db_provider.dart';
+import 'package:gapler/providers/tags_provider.dart';
+import 'package:gapler/services/db_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TagsManager {

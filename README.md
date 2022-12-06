@@ -1,4 +1,4 @@
-# domo
+# gapler
 
 Awesome note taking app
 

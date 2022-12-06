@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'package:domo/components/domo_icons.dart';
-import 'package:domo/models/note.dart';
-import 'package:domo/models/tag.dart';
-import 'package:domo/providers/edit_view_manager_provider.dart';
-import 'package:domo/providers/edit_view_provider.dart';
-import 'package:domo/providers/tags_manager_provider.dart';
+import 'package:gapler/components/domo_icons.dart';
+import 'package:gapler/models/note.dart';
+import 'package:gapler/models/tag.dart';
+import 'package:gapler/providers/edit_view_manager_provider.dart';
+import 'package:gapler/providers/edit_view_provider.dart';
+import 'package:gapler/providers/tags_manager_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';

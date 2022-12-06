@@ -1,6 +1,6 @@
 {
-    "name": "domo",
-    "short_name": "domo",
+    "name": "gapler",
+    "short_name": "gapler",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
