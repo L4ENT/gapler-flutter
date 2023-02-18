@@ -20,12 +20,12 @@ class NoteModel {
       required this.tags});
 
   String get longText {
-    if(quillDelta.isEmpty) {
+    if (quillDelta.isEmpty) {
       return 'Empty note ...';
     }
     String text = Document.fromDelta(quillDelta).toPlainText();
     text = text.replaceAll("\n", " ");
-    if(text.length > 41) {
+    if (text.length > 41) {
       return '${text.substring(0, 38)}...';
     } else {
       return text;
@@ -33,19 +33,19 @@ class NoteModel {
   }
 
   String get shortText {
-    if(quillDelta.isEmpty) {
+    if (quillDelta.isEmpty) {
       return 'Empty note ...';
     }
     String text = Document.fromDelta(quillDelta).toPlainText();
     text = text.replaceAll("\n", " ");
-    if(text.length > 41) {
-      return '${text.substring(0, 38)}...';
+    if (text.length > 82) {
+      return '${text.substring(0, 79)}...';
     } else {
       return text;
     }
   }
 
-  int get volume{
+  int get volume {
     int volume = 0;
     if (longText.isNotEmpty) {
       volume++;

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:gapler/models/note.dart';
 import 'package:gapler/models/notes_group.dart';
 import 'package:gapler/models/tag.dart';
@@ -57,22 +55,29 @@ class _BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          border: Border(
-              top: BorderSide(
-                  width: 1, color: Theme.of(context).colorScheme.outline))),
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // _BottomBarItem(icon: DomoIcons.attachment),
-          // SizedBox(width: 10),
-          _BottomBarItem(
-            icon: DomoIcons.note,
-            onPressed: () {
-              context.push('/edit');
-            },
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          top: BorderSide(
+            width: 1,
+            color: Theme.of(context).colorScheme.outline,
           ),
+        ),
+      ),
+      padding: const EdgeInsets.only(top: 24, bottom: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // _BottomBarItem (icon: DomoIcons.attachment),
+          // SizedBox(width: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: _BottomBarItem(
+              icon: DomoIcons.note,
+              onPressed: () {
+                context.push('/edit');
+              },
+            ),
+          )
         ],
       ),
     );
@@ -101,7 +106,7 @@ class _ItemTags extends StatelessWidget {
   final letterWidth = 5;
   final tagPadding = 12;
   final tagMargin = 4;
-  final maxContentWidth = 124;
+  final maxContentWidth = 184;
 
   final List<TagModel> tags;
 
@@ -124,12 +129,12 @@ class _ItemTags extends StatelessWidget {
   }
 
   String _normalizeTitle(String title, int remainingWidth) {
-    if(remainingWidth <= 0) {
+    if (remainingWidth <= 0) {
       return title;
     }
 
     int letters = (remainingWidth / letterWidth).round();
-    if(letters  < 5) {
+    if (letters < 5) {
       return title;
     }
 
@@ -148,9 +153,10 @@ class _ItemTags extends StatelessWidget {
 
     for (int i = 0; i < tags.length; i++) {
       TagModel tag = tags[i];
-      int remainingWidth = maxContentWidth - totalWidth - tagMargin - tagPadding;
+      int remainingWidth =
+          maxContentWidth - totalWidth - tagMargin - tagPadding;
 
-      if(i != tags.length - 1) {
+      if (i != tags.length - 1) {
         remainingWidth -= 24;
       }
 
@@ -375,7 +381,7 @@ class CalendarViewState extends ConsumerState<CalendarView> {
         slivers: [
           SliverList(
             delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
+              (BuildContext context, int index) {
                 DateTime groupDate = cvDates[index];
                 NotesGroupModel itemsGroup = ref.watch(
                     calendarViewGroupProvider(ViewGroupKey.buildDateGroupKey(
@@ -384,28 +390,27 @@ class CalendarViewState extends ConsumerState<CalendarView> {
                 return Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.only(left: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(formatForCv(groupDate)),
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.only(left: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       margin: const EdgeInsets.symmetric(vertical: 16),
                       // TODO: Calc height before render from items batches
-                      height: _getGroupHeight(batchesResult.maxBatchSize),
-                      child: ListView(
+                      child: Column(
                           key: Key('${itemsGroup.groupKey}:listview'),
-                          scrollDirection: Axis.horizontal,
-                          children: batchesResult.batches
-                              .asMap()
-                              .entries
-                              .map<Widget>((entry) {
-                            return _ItemBatch(
-                                key: Key(
-                                    '${itemsGroup.groupKey}:listview:${entry.key}'),
-                                items: entry.value);
+                          children: itemsGroup.items.map<Widget>((item) {
+                            return _Item(
+                              key: Key('item:${item.uuid}'),
+                              text: item.shortText,
+                              uuid: item.uuid,
+                              tags: item.tags,
+                              important: item.isImportant,
+                              files: item.filesCount,
+                            );
                           }).toList()),
                     )
                   ],
@@ -416,7 +421,7 @@ class CalendarViewState extends ConsumerState<CalendarView> {
           ),
         ]);
 
-     const placeHolder = Center(
+    const placeHolder = Center(
       child: Text('Looks like there are no notes yet.'),
     );
 

@@ -151,6 +151,7 @@ class EditViewState extends ConsumerState<EditView> {
         ref.watch(editViewProvider.select((value) => value.tags));
 
     return Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           centerTitle: false,
           title: const Text('Edit'),

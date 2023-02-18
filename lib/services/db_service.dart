@@ -105,7 +105,7 @@ class NotesSubService extends SubService {
 
     List<NoteCollectionItem> notes = await query
         .createdAtBetween(startDate, endDate)
-        .sortByCreatedAtDesc()
+        .sortByCreatedAt()
         .findAll();
 
     return _mapNotes(notes);
